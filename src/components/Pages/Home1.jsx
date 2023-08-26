@@ -9,9 +9,14 @@ import Services1 from './../Elements/Services1';
 import Projects1 from './../Elements/Projects1';
 import ClientsLogo1 from './../Elements/ClientsLogo1';
 import Team1 from './../Elements/Team1';
+import { useSelector } from "react-redux";
+import { useGetInstitucionQuery } from '../../api/apiSlice';
 
-class Home1 extends React.Component {
-    render() {
+
+const Home1 = () =>{
+
+        const staticData = useSelector((state) => state.staticData.staticData);
+        const { data, isLoading } = useGetInstitucionQuery();
         return (
             <>
                 <Header />
@@ -29,6 +34,5 @@ class Home1 extends React.Component {
             </>
         );
     };
-};
 
 export default Home1;
