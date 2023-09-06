@@ -1,39 +1,396 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import Header4 from './../Common/Header4';
 import Footer from './../Common/Footer';
 import Banner from './../Elements/Banner';
 import BlogSidebar from './../Elements/BlogSidebar';
+import CryptoJS from 'crypto-js';
+import { Document, Page, pdfjs } from "react-pdf";
+
+import { getInstitucion, getServicios, getOfertasAcademicas, getPublicaciones, getGacetas, getEventos, getVideos, getStaticDataCategoryDetail, getStaticDataKey, getConvocatorias, getCursos } from '../../api/institucionAPI';
+import { useQuery } from '@tanstack/react-query';
 
 var bnrimg = require('./../../images/banner/4.jpg');
 var bgimg1 = require('./../../images/background/cross-line2.png');
 
-class PostRightSidebar extends React.Component {
-    componentDidMount() {
+const PostRightSidebar = () =>{   
+
+    /* TIPOS DE CATEGORIAS PERMITIDAS */
+    const TYPE = {
+        CONVOCATORIAS : 'CONVOCATORIAS',
+        COMUNICADOS : 'COMUNICADOS',
+        AVISOS : 'AVISOS',
+        CURSOS : 'CURSOS',
+        SEMINARIOS : 'SEMINARIOS',
+        SERVICIOS : 'SERVICIOS',
+        OFERTAS_ACADEMICAS : 'OFERTAS_ACADEMICAS',
+        PUBLICACIONES: 'PUBLICACIONES',
+        GACETAS: 'GACETAS',
+        EVENTOS: 'EVENTOS',
+        VIDEOS: 'VIDEOS',
+    }
+    
+    /* OBTENEMOS EL TIPO DE CATEGORIA */
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const category = searchParams.get('tipo').toUpperCase();
+    const id = searchParams.get('id');
+
+    /* OBTENCION DE INFORMACION DEL STORE API INSTITUCION*/
+    const { isLoading: loading_institucion, data: institucion } = useQuery({
+        queryKey: ['institucion'],
+        queryFn: getInstitucion,
+    })
+
+    /* OBTENCION DE INFORMACION DEL STORE CONVOCATORIAS */
+    const { isLoading: loading_convocatorias, data: convocatorias } = useQuery({
+        queryKey: ['convocatorias'],
+        queryFn: getConvocatorias,
+    });
+
+    /* OBTENCION DE INFORMACION DEL STORE CURSO */
+    const { isLoading: loading_cursos, data: cursos } = useQuery({
+        queryKey: ['cursos'],
+        queryFn: getCursos,
+    });
+
+    /* OBTENCION DE INFORMACION DEL STORE API SERVICIOS*/
+    const { isLoading: loading_servicios, data: servicios } = useQuery({
+        queryKey: ['servicios'],
+        queryFn: getServicios,
+    })
+
+    /* OBTENCION DE INFORMACION DEL STORE API OFERTAS ACADEMICAS*/
+    const { isLoading: loading_ofertas, data: ofertas } = useQuery({
+        queryKey: ['ofertas'],
+        queryFn: getOfertasAcademicas,
+    })
+
+    /* OBTENCION DE INFORMACION DEL STORE API PUBLICACIONES*/
+    const { isLoading: loading_publicaciones, data: publicaciones } = useQuery({
+        queryKey: ['publicaciones'],
+        queryFn: getPublicaciones,
+    })
+
+    /* OBTENCION DE INFORMACION DEL STORE API GACETAS*/
+    const { isLoading: loading_gacetas, data: gacetas } = useQuery({
+        queryKey: ['gacetas'],
+        queryFn: getGacetas,
+    })
+
+    /* OBTENCION DE INFORMACION DEL STORE API EVENTOS*/
+    const { isLoading: loading_eventos, data: eventos } = useQuery({
+        queryKey: ['eventos'],
+        queryFn: getEventos,
+    })
+
+    /* OBTENCION DE INFORMACION DEL STORE API VIDEOS*/
+    const { isLoading: loading_videos, data: videos } = useQuery({
+        queryKey: ['videos'],
+        queryFn: getVideos,
+    })
+
+    /* OBTENCION DE INFORMACION DEL STORE STATICO CATEGORY */
+    const { isLoading: loading_static_data, data: staticData } = useQuery({
+        queryKey: ['staticDataCategoryDetail'],
+        queryFn: getStaticDataCategoryDetail,
+    });
+
+    /* OBTENCION DE INFORMACION DEL STORE STATICO CATEGORY */
+    const { isLoading: loading_static_data_key, data: staticDataKey } = useQuery({
+        queryKey: ['staticDataKey'],
+        queryFn: getStaticDataKey,
+    });      
+
+    /* FORMATEAR FECHA */
+    function formatearFecha(fechaString) {
+        const fecha = new Date(fechaString);
+      
+        const meses = [
+          "enero", "febrero", "marzo", "abril", "mayo", "junio",
+          "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+        ];
+      
+        const día = fecha.getDate();
+        const mes = meses[fecha.getMonth()];
+        const año = fecha.getFullYear();
+      
+        return `${día} de ${mes} de ${año}`;
+    }
+
+    /* FUNCION PARA OBTENER EL DIA DE UNA FECHA  */
+    function obtenerDiaDeFecha(fechaISO) {
+        const fecha = new Date(fechaISO);
+        const dia = fecha.getDate();
+        return dia;
+    }
+
+    /* FUNCION PARA OBTENER EL MES DE UNA FECHA */
+    function obtenerMesDeFecha(fechaISO) {
+        const mesesDelAnio = [
+            "ENE", "FEB", "MAR", "ABR",
+            "MAY", "JUN", "JUL", "AGO",
+            "SEP", "OCT", "NOV", "DIC"
+        ];
+    
+        const fecha = new Date(fechaISO);
+        const mesIndex = fecha.getMonth();
+        const mesReducido = mesesDelAnio[mesIndex];
+    
+        return mesReducido;
+    }
+
+    /* FUNCION PARA OBTENER EL DIA DE UNA FECHA */
+    function obtenerDiaDeFecha2(fechaString) {
+        const fecha = new Date(fechaString);
+        const dia = fecha.getDate();
+        return dia;
+      }
+      
+    /* FUNCION PARA OBTENER EL MES DE UNA FECHA */  
+    function obtenerMesDeFecha2(fechaString) {
+        const fecha = new Date(fechaString);
+        const meses = [
+        "ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"
+        ];
+        const mes = fecha.getMonth(); // Obtiene el mes (0-11)
+        return meses[mes];
+    } 
+
+    /* Obtener el último de la coleccion */
+    function obtenerUltimoElemento(coleccion) {
+        if(coleccion.length >= 2){
+            return coleccion[coleccion.length - 1];
+        }else{
+            return null
+        }
+    }
+
+    /* Obtener el penúltimo de la coleccion */
+    function obtenerPenultimoElemento(coleccion) {
+        if (coleccion.length >= 2) {
+          return coleccion[coleccion.length - 2];
+        } else {
+          return null; // No hay suficientes servicios para obtener el penúltimo
+        }
+    }
+
+    useEffect(() => {
+
+        pdfjs.GlobalWorkerOptions.workerSrc =`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+
         function loadScript(src) {
-
-            return new Promise(function (resolve, reject) {
-                var script = document.createElement('script');
-                script.src = src;
-                script.addEventListener('load', function () {
-                    resolve();
-                });
-                script.addEventListener('error', function (e) {
-                    reject(e);
-                });
-                document.body.appendChild(script);
-                document.body.removeChild(script);
-            })
-        };
-
+          return new Promise(function (resolve, reject) {
+            var script = document.createElement('script');
+            script.src = src;
+            script.addEventListener('load', function () {
+              resolve();
+            });
+            script.addEventListener('error', function (e) {
+              reject(e);
+            });
+            document.body.appendChild(script);
+            document.body.removeChild(script);
+          });
+        }
+    
         loadScript('./assets/js/custom.js');
+      }, []);      
 
-    };
-    render() {
+    /* COMPONENTE PARA SERVICIOS */      
+      if (
+        !loading_institucion &&
+        !loading_static_data &&
+        !loading_servicios &&
+        !loading_static_data_key &&
+        category === TYPE.SERVICIOS
+        ) 
+        {
+
+        const secretKey = staticDataKey.CLAVE_ENCRYPTACION;        
+
+        /* Función para encriptar un ID */
+        function encryptId(id) {
+            const encrypted = CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
+            return encrypted;
+        }  
+
+        // Función para desencriptar un ID
+        function decryptId(encryptedId) {
+            const decrypted = CryptoJS.AES.decrypt(encryptedId, secretKey).toString(CryptoJS.enc.Utf8);
+            return parseInt(decrypted, 10);
+        }
+
+        /* DATOS OBTENIDOS DESDE LA STORE API */
+        const {
+            txt_content_banner_detail,
+            txt_content_btn     
+        } = staticData
+
+        /* DATOS OBTENIDOS DESDE LA STORE STATICA*/
+        const {
+            institucion_iniciales,
+            institucion_nombre
+        } = institucion
+
+        const item = servicios.find((e) => e.serv_id === parseInt(id,10)) 
+        
+        console.log("id",id);
+        console.log("item",item);                   
+        const ultimo = obtenerUltimoElemento(servicios)
+        const penultimo = obtenerPenultimoElemento(servicios)        
+
         return (
             <>
                 <Header4 />
-                <div className="page-content ">
+                {item && <div className="page-content ">
+                    <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={bnrimg} />
+                    {/* SECTION CONTENT START */}
+                    <div className="section-full p-tb80 inner-page-padding">
+                        <div className="container">
+                            <div className="row">
+                                <div className="col-lg-8 col-md-12 col-sm-12">
+                                    <div className="blog-single-space max-w900 ml-auto mr-auto">
+                                        {/* BLOG START */}
+                                        <div className="blog-post blog-detail text-black">
+                                            <div className="sx-post-media">
+                                                <div className="portfolio-item">
+                                                <img className="img-responsive" src={`${process.env.REACT_APP_ROOT_API}/Carrera/Servicios/${item.serv_imagen}`} alt="" />
+                                                </div>
+                                            </div>
+                                            <div className="sx-post-meta  m-t20">
+                                                <ul>
+                                                    <li className="post-date"><strong>{formatearFecha(item.serv_registro)}</strong> </li>
+                                                    <li className="post-author"><NavLink to={"/blog-masonry"}><span>{institucion_nombre}</span></NavLink> </li>
+                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TYPE.SERVICIOS}</span></NavLink> </li>
+                                                </ul>
+                                            </div>
+                                            <div className="sx-post-title ">
+                                                <h3 className="post-title">{item.serv_nombre}</h3>
+                                            </div>
+                                            <div className="sx-post-text">
+                                                <div dangerouslySetInnerHTML={{ __html: item.serv_descripcion }}></div>                                                                                                
+                                            </div>                                            
+                                        </div>
+                                        {/* OUR BLOG START */}
+                                        {/* TITLE START */}
+                                        {ultimo && <div className="section-head">
+                                            <div className="sx-separator-outer separator-left">
+                                                <div className="sx-separator bg-white bg-moving bg-repeat-x" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
+                                                    <h3 className="sep-line-one">Ultimos {category}</h3>
+                                                </div>
+                                            </div>
+                                        </div>}
+                                        {/* TITLE END */}
+                                        {/* BLOG START */}
+                                        <div className="section-content">
+                                            <div className="row">
+                                                { ultimo && <div className="col-md-6 col-sm-6">
+                                                    <div className="blog-post blog-grid date-style-2">
+                                                        <div className="sx-post-media sx-img-effect img-reflection">
+                                                            <NavLink to={`/post-right-sidebar?id=${ultimo.serv_id}&tipo=${TYPE.SERVICIOS}`}><img src={`${process.env.REACT_APP_ROOT_API}/Carrera/Servicios/${ultimo.serv_imagen}`} alt="" /></NavLink>
+                                                        </div>
+                                                        <div className="sx-post-info p-t30">
+                                                            <div className="sx-post-meta ">
+                                                                <ul>
+                                                                    <li className="post-date"><strong>{obtenerDiaDeFecha(ultimo.serv_registro)}</strong> <span>{obtenerMesDeFecha(ultimo.serv_registro)}</span> </li>
+                                                                    <li className="post-author"><NavLink to={`/post-right-sidebar?id=${ultimo.serv_id}&tipo=${TYPE.SERVICIOS}`}><span>{institucion_iniciales}</span></NavLink> </li>
+                                                                    <li className="post-comment"> <NavLink to={`/post-right-sidebar?id=${ultimo.serv_id}&tipo=${TYPE.SERVICIOS}`}>{TYPE.SERVICIOS}</NavLink> </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div className="sx-post-title ">
+                                                                <h4 className="post-title"><NavLink to={`/post-right-sidebar?id=${ultimo.serv_id}&tipo=${TYPE.SERVICIOS}`}>{ultimo.serv_nombre}</NavLink></h4>
+                                                            </div>
+                                                            <div className="sx-post-readmore">
+                                                                <NavLink to={`/post-right-sidebar?id=${ultimo.serv_id}&tipo=${TYPE.SERVICIOS}`} title="READ MORE" rel="bookmark" className="site-button-link">{txt_content_btn}</NavLink>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>}
+                                                { penultimo && <div className="col-md-6 col-sm-6">
+                                                    <div className="blog-post blog-grid date-style-2">
+                                                        <div className="sx-post-media sx-img-effect img-reflection">
+                                                            <NavLink to={`/post-right-sidebar?id=${penultimo.serv_id}&tipo=${TYPE.SERVICIOS}`}><img src={`${process.env.REACT_APP_ROOT_API}/Carrera/Servicios/${penultimo.serv_imagen}`} alt="" /></NavLink>
+                                                        </div>
+                                                        <div className="sx-post-info p-t30">
+                                                            <div className="sx-post-meta ">
+                                                                <ul>
+                                                                    <li className="post-date"><strong>{obtenerDiaDeFecha(penultimo.serv_registro)}</strong> <span>{obtenerMesDeFecha(penultimo.serv_registro)}</span> </li>
+                                                                    <li className="post-author"><NavLink to={`/post-right-sidebar?id=${penultimo.serv_id}&tipo=${TYPE.SERVICIOS}`}><span>{institucion_iniciales}</span></NavLink> </li>
+                                                                    <li className="post-comment"> <NavLink to={`/post-right-sidebar?id=${penultimo.serv_id}&tipo=${TYPE.SERVICIOS}`}>{TYPE.SERVICIOS}</NavLink> </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div className="sx-post-title ">
+                                                                <h4 className="post-title"><NavLink to={`/post-right-sidebar?id=${penultimo.serv_id}&tipo=${TYPE.SERVICIOS}`}>{penultimo.serv_nombre}</NavLink></h4>
+                                                            </div>
+                                                            <div className="sx-post-readmore">
+                                                                <NavLink to={`/post-right-sidebar?id=${penultimo.serv_id}&tipo=${TYPE.SERVICIOS}`} title="READ MORE" rel="bookmark" className="site-button-link">{txt_content_btn}</NavLink>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>}
+                                            </div>
+                                        </div>                                        
+                                    </div>
+                                </div>
+                                {/* SIDE BAR START */}
+                                <div className="col-lg-4 col-md-12 col-sm-12 sticky_column">
+                                    <BlogSidebar />
+                                </div>
+                                {/* SIDE BAR END */}
+                            </div>
+                        </div>
+                    </div>
+                    {/* SECTION CONTENT END */}
+                </div>}
+                <Footer />
+            </>
+        );
+      }  
+      
+    /* COMPONENTE PARA OFERTAS ACADEMICAS */      
+      if (
+        !loading_institucion &&
+        !loading_static_data &&
+        !loading_ofertas &&
+        !loading_static_data_key &&
+        category === TYPE.OFERTAS_ACADEMICAS
+        ) 
+        {
+
+            const secretKey = staticDataKey.CLAVE_ENCRYPTACION;        
+
+            /* Función para encriptar un ID */
+            function encryptId(id) {
+                const encrypted = CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
+                return encrypted;
+            }  
+
+            // Función para desencriptar un ID
+            function decryptId(encryptedId) {
+                const decrypted = CryptoJS.AES.decrypt(encryptedId, secretKey).toString(CryptoJS.enc.Utf8);
+                return parseInt(decrypted, 10);
+            }
+    
+            /* DATOS OBTENIDOS DESDE LA STORE API */
+            const {
+                txt_content_banner_detail,
+                txt_content_btn     
+            } = staticData
+    
+            /* DATOS OBTENIDOS DESDE LA STORE STATICA*/
+            const {
+                institucion_iniciales,
+                institucion_nombre
+            } = institucion
+    
+            const item = ofertas.find((e) => e.ofertas_id === parseInt(id,10))                                                     
+
+        return (
+            <>
+                <Header4 />
+                {item ? (
+                    <div className="page-content ">
                     <Banner title="Post With Right Sidebar" pagename="Post right sidebar" description="The essence of interior design will always be about people and how they live. It is about the realities of what makes for an attractive, civilized." bgimage={bnrimg} />
                     {/* SECTION CONTENT START */}
                     <div className="section-full p-tb80 inner-page-padding">
@@ -45,88 +402,22 @@ class PostRightSidebar extends React.Component {
                                         <div className="blog-post blog-detail text-black">
                                             <div className="sx-post-media">
                                                 <div className="portfolio-item">
-                                                    <img className="img-responsive" src={require('./../../images/blog/default/thum1.jpg')} alt="" />
+                                                    <img className="img-responsive" src={`${process.env.REACT_APP_ROOT_API}/Carrera/OfertasAcademicas/${item.ofertas_imagen}`} alt="" />
                                                 </div>
                                             </div>
                                             <div className="sx-post-meta  m-t20">
                                                 <ul>
-                                                    <li className="post-date"><strong>20 </strong> <span>Septembar 2022</span> </li>
-                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>Admin</span></NavLink> </li>
-                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>Architecture</span></NavLink> </li>
+                                                    <li className="post-date"><strong>{formatearFecha(item.ofertas_fecha_creacion)}</strong></li>
+                                                    <li className="post-author"><NavLink to={"/blog-masonry"}><span>{institucion_nombre}</span></NavLink> </li>
+                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{"OFERTAS ACADEMICAS"}</span></NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
-                                                <h3 className="post-title">Blogpost with image slider there are many variations of passages.</h3>
+                                                <h3 className="post-title">{item.ofertas_titulo}</h3>
                                             </div>
                                             <div className="sx-post-text">
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa quioffic ia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta.</p>
-                                                <blockquote className="bdr-1 bdr-solid bdr-gray author-quote">
-                                                    <h4 className="m-b0">We let our quality work and commitment to customer satisfaction be our slogan. quality you deserve and dependability you can count on.<i className="fa fa-quote-left" /> </h4>
-                                                    <div className="p-t15">
-                                                        <strong>Jessica Mcdade</strong>
-                                                        <span>Interior Designer</span>
-                                                    </div>
-                                                </blockquote>
-                                                <div className="row">
-                                                    <div className="col-md-6">
-                                                        <div className="sx-box m-b30">
-                                                            <div className="sx-media">
-                                                                <img src={require('./../../images/blog/default/thum1.jpg')} alt="" />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-md-6">
-                                                        <div className="sx-box m-b30">
-                                                            <div className="sx-media">
-                                                                <img src={require('./../../images/blog/default/thum2.jpg')} alt="" />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. remaining essentially unchanged. It was popular ised in the with the . Proin tincidunt tellus ac porta volutpat. Cras mattis congue lacus id bibendum. Mauris ut sodales libero. Maecenas feugiat sit amet enim in accumsan. Here, then, is what I wanted to tell you of my architecture. I created it with courage and idealism, but also with an awareness of the fact that what is important is life, friends, and attempting to make this unjust world a better place in which to live.</p>
-                                            </div>
-                                            <div className="autor-post-tag-share p-a30 bg-gray">
-                                                <div className="row">
-                                                    <div className="col-md-12">
-                                                        <div className="widget_tag_cloud m-b15">
-                                                            <h5 className="tagcloud">Tags</h5>
-                                                            <div className="tagcloud">
-                                                                <NavLink to={"/blog-masonry"}>Kitchen</NavLink>
-                                                                <NavLink to={"/blog-masonry"}>Food</NavLink>
-                                                                <NavLink to={"/blog-masonry"}>Planining</NavLink>
-                                                                <NavLink to={"/blog-masonry"}>Between </NavLink>
-                                                                <NavLink to={"/blog-masonry"}>Chairs</NavLink>
-                                                                <NavLink to={"/blog-masonry"}>Lawn</NavLink>
-                                                                <NavLink to={"/blog-masonry"}>Table</NavLink>
-                                                                <NavLink to={"/blog-masonry"}>Mantinance</NavLink>
-                                                                <NavLink to={"/blog-masonry"}>Room</NavLink>
-                                                                <NavLink to={"/blog-masonry"}>Landscape </NavLink>
-                                                                <NavLink to={"/blog-masonry"}>Bedroom </NavLink>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-md-12">
-                                                        <div className="clearfix single-post-share">
-                                                            <h5>Share this Post:</h5>
-                                                            <div className="widget_social_inks">
-                                                                <ul className="social-icons social-md social-square social-dark m-b0">
-                                                                    <li><a href="https://www.facebook.com" target="_blank" className="fa fa-facebook" /></li>
-                                                                    <li><a href="https://twitter.com" target="_blank" className="fa fa-twitter" /></li>
-                                                                    <li><a href="https://rss.com" target="_blank" className="fa fa-rss" /></li>
-                                                                    <li><a href="https://www.youtube.com" target="_blank" className="fa fa-youtube" /></li>
-                                                                    <li><a href="https://www.instagram.com" target="_blank" className="fa fa-instagram" /></li>
-                                                                </ul>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="post-controls m-tb30">
-                                                <div className="d-flex justify-content-between">
-                                                    <div className="prev-post"><NavLink to={"#"}>Prev Article</NavLink></div>
-                                                    <div className="next-post"><NavLink to={"#"}>Next Article</NavLink></div>
-                                                </div>
-                                            </div>
+                                                <div dangerouslySetInnerHTML={{ __html: item.ofertas_descripcion }}></div>                                                
+                                            </div>                                                                                        
                                         </div>
                                         {/* OUR BLOG START */}
                                         {/* TITLE START */}
@@ -186,103 +477,143 @@ class PostRightSidebar extends React.Component {
                                                     </div>
                                                 </div>
                                             </div>
+                                        </div>                                        
+                                    </div>
+                                </div>
+                                {/* SIDE BAR START */}
+                                <div className="col-lg-4 col-md-12 col-sm-12 sticky_column">
+                                    <BlogSidebar />
+                                </div>
+                                {/* SIDE BAR END */}
+                            </div>
+                        </div>
+                    </div>
+                    {/* SECTION CONTENT END */}
+                </div>
+
+                ) : (
+                    <div><h3>Cargando</h3></div>
+                ) }
+                <Footer />
+            </>
+        );
+      }  
+
+    /* COMPONENTE PARA PUBLICACIONES */      
+      if (
+        !loading_institucion &&
+        !loading_static_data &&
+        !loading_publicaciones &&
+        !loading_static_data_key &&
+        category === TYPE.PUBLICACIONES
+        ) 
+        {
+
+        /* DATOS OBTENIDOS DESDE LA STORE API */
+        const {
+            txt_content_banner_detail,
+            txt_content_btn     
+        } = staticData
+
+        /* DATOS OBTENIDOS DESDE LA STORE STATICA*/
+        const {
+            institucion_iniciales,
+            institucion_nombre
+        } = institucion
+
+        const item = publicaciones.find((e) => e.publicaciones_id === parseInt(id,10))  
+
+        return (
+            <>
+                <Header4 />
+                <div className="page-content ">
+                    <Banner title="Post With Right Sidebar" pagename="Post right sidebar" description="The essence of interior design will always be about people and how they live. It is about the realities of what makes for an attractive, civilized." bgimage={bnrimg} />
+                    {/* SECTION CONTENT START */}
+                    <div className="section-full p-tb80 inner-page-padding">
+                        <div className="container">
+                            <div className="row">
+                                <div className="col-lg-8 col-md-12 col-sm-12">
+                                    <div className="blog-single-space max-w900 ml-auto mr-auto">
+                                        {/* BLOG START */}
+                                        <div className="blog-post blog-detail text-black">
+                                            <div className="sx-post-media">
+                                                <div className="portfolio-item">
+                                                    <img className="img-responsive" src={`${process.env.REACT_APP_ROOT_API}/Publicaciones/${item.publicaciones_imagen}`} alt="" />
+                                                </div>
+                                            </div>
+                                            <div className="sx-post-meta  m-t20">
+                                                <ul>
+                                                    <li className="post-date"><strong>{formatearFecha(item.publicaciones_fecha)}</strong></li>
+                                                    <li className="post-author"><NavLink to={"/blog-masonry"}><span>{institucion_nombre}</span></NavLink> </li>
+                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TYPE.PUBLICACIONES}</span></NavLink> </li>
+                                                </ul>
+                                            </div>
+                                            <div className="sx-post-title ">
+                                                <h3 className="post-title">{item.publicaciones_titulo}</h3>
+                                            </div>
+                                            <div className="sx-post-text">
+                                                <div dangerouslySetInnerHTML={{ __html: item.publicaciones_descripcion }}></div>                                                                                                                                                
+                                            </div>                                                                                        
                                         </div>
-                                        {/* OUR BLOG END */}
-                                        <div className="clear" id="comment-list">
-                                            <div className="comments-area" id="comments">
-                                                <h2 className="comments-title">3 Comments</h2>
-                                                <div className="p-tb30">
-                                                    {/* COMMENT LIST START */}
-                                                    <ol className="comment-list">
-                                                        <li className="comment">
-                                                            {/* COMMENT BLOCK */}
-                                                            <div className="comment-body">
-                                                                <div className="comment-meta">
-                                                                    <NavLink to={"#"}>20 Sep 2022</NavLink>
-                                                                </div>
-                                                                <div className="comment-author vcard">
-                                                                    <img className="avatar photo" src={require('./../../images/testimonials/pic4.jpg')} alt="" />
-                                                                    <cite className="fn"> Schiocchet </cite>
-                                                                    <span className="says">says:</span>
-                                                                </div>
-                                                                <p>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable. </p>
-                                                                <div className="reply">
-                                                                    <NavLink to={"#"} className="comment-reply-link letter-spacing-2 text-uppercase">Reply</NavLink>
-                                                                </div>
-                                                            </div>
-                                                            {/* SUB COMMENT BLOCK */}
-                                                            <ol className="children">
-                                                                <li className="comment odd parent">
-                                                                    <div className="comment-body">
-                                                                        <div className="comment-meta">
-                                                                            <NavLink to={"#"}>22 Sep 2022</NavLink>
-                                                                        </div>
-                                                                        <div className="comment-author vcard">
-                                                                            <img className="avatar photo" src={require('./../../images/testimonials/pic3.jpg')} alt="" />
-                                                                            <cite className="fn">Brayden</cite>
-                                                                            <span className="says">says:</span>
-                                                                        </div>
-                                                                        <p>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words. </p>
-                                                                        <div className="reply">
-                                                                            <NavLink to={"#"} className="comment-reply-link letter-spacing-2 text-uppercase">Reply</NavLink>
-                                                                        </div>
-                                                                    </div>
-                                                                    <ol className="children">
-                                                                        <li className="comment odd parent">
-                                                                            <div className="comment-body">
-                                                                                <div className="comment-meta">
-                                                                                    <NavLink to={"#"}>24 Sep 2022</NavLink>
-                                                                                </div>
-                                                                                <div className="comment-author vcard">
-                                                                                    <img className="avatar photo" src={require('./../../images/testimonials/pic2.jpg')} alt="" />
-                                                                                    <cite className="fn">Diego</cite>
-                                                                                    <span className="says">says:</span>
-                                                                                </div>
-                                                                                <p>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form.</p>
-                                                                                <div className="reply">
-                                                                                    <NavLink to={"#"} className="comment-reply-link letter-spacing-2 text-uppercase">Reply</NavLink>
-                                                                                </div>
-                                                                            </div>
-                                                                        </li>
-                                                                    </ol>
-                                                                </li>
-                                                            </ol>
-                                                        </li>
-                                                    </ol>
-                                                    {/* COMMENT LIST END */}
-                                                    {/* LEAVE A REPLY START */}
-                                                    <div className="comment-respond m-t30" id="respond">
-                                                        <h2 className="comment-reply-title" id="reply-title">Leave a Comments
-                                                            <small>
-                                                                <NavLink to={"#"} style={{ display: 'none' }} id="cancel-comment-reply-link" rel="nofollow">Cancel reply</NavLink>
-                                                            </small>
-                                                        </h2>
-                                                        <form className="comment-form bdr-1 bdr-solid bdr-gray p-tb15" id="commentform" method="post">
-                                                            <p className="comment-form-author">
-                                                                <label htmlFor="author">Name <span className="required">*</span></label>
-                                                                <input className="form-control" type="text" defaultValue="" name="user-comment" placeholder="Author" id="author" />
-                                                            </p>
-                                                            <p className="comment-form-email">
-                                                                <label htmlFor="email">Email <span className="required">*</span></label>
-                                                                <input className="form-control" type="text" defaultValue="" name="email" placeholder="Email" id="email" />
-                                                            </p>
-                                                            <p className="comment-form-url">
-                                                                <label htmlFor="url">Website</label>
-                                                                <input className="form-control" type="text" defaultValue="" name="url" placeholder="Website" id="url" />
-                                                            </p>
-                                                            <p className="comment-form-comment">
-                                                                <label htmlFor="comment">Comment</label>
-                                                                <textarea className="form-control" rows={8} name="comment" placeholder="Comment" id="comment" defaultValue={""} />
-                                                            </p>
-                                                            <p className="form-submit">
-                                                                <button className="site-button btn-half" type="button"><span> Submit</span></button>
-                                                            </p>
-                                                        </form>
-                                                    </div>
-                                                    {/* LEAVE A REPLY END */}
+                                        {/* OUR BLOG START */}
+                                        {/* TITLE START */}
+                                        <div className="section-head">
+                                            <div className="sx-separator-outer separator-left">
+                                                <div className="sx-separator bg-white bg-moving bg-repeat-x" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
+                                                    <h3 className="sep-line-one">Blog</h3>
                                                 </div>
                                             </div>
                                         </div>
+                                        {/* TITLE END */}
+                                        {/* BLOG START */}
+                                        <div className="section-content">
+                                            <div className="row">
+                                                <div className="col-md-6 col-sm-6">
+                                                    <div className="blog-post blog-grid date-style-2">
+                                                        <div className="sx-post-media sx-img-effect img-reflection">
+                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic1.jpg')} alt="" /></NavLink>
+                                                        </div>
+                                                        <div className="sx-post-info p-t30">
+                                                            <div className="sx-post-meta ">
+                                                                <ul>
+                                                                    <li className="post-date"><strong>05</strong> <span>Sep</span> </li>
+                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
+                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div className="sx-post-title ">
+                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>We’ll nail your next project, because...</NavLink></h4>
+                                                            </div>
+                                                            <div className="sx-post-readmore">
+                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-md-6 col-sm-6">
+                                                    <div className="blog-post blog-grid date-style-2">
+                                                        <div className="sx-post-media sx-img-effect img-reflection">
+                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic2.jpg')} alt="" /></NavLink>
+                                                        </div>
+                                                        <div className="sx-post-info p-t30">
+                                                            <div className="sx-post-meta ">
+                                                                <ul>
+                                                                    <li className="post-date"><strong>25</strong> <span>Sep</span> </li>
+                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
+                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div className="sx-post-title ">
+                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>Helping you and your house become...</NavLink></h4>
+                                                            </div>
+                                                            <div className="sx-post-readmore">
+                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>                                        
                                     </div>
                                 </div>
                                 {/* SIDE BAR START */}
@@ -299,7 +630,686 @@ class PostRightSidebar extends React.Component {
                 <Footer />
             </>
         );
-    };
+      }  
+
+    /* COMPONENTE PARA GACETAS */      
+      if (
+        !loading_institucion &&
+        !loading_static_data &&
+        !loading_gacetas &&
+        !loading_static_data_key &&
+        category === TYPE.GACETAS
+        ) 
+        {
+
+        /* DATOS OBTENIDOS DESDE LA STORE API */
+        const {
+            txt_content_banner_detail,
+            txt_content_btn     
+        } = staticData
+
+        /* DATOS OBTENIDOS DESDE LA STORE STATICA*/
+        const {
+            institucion_iniciales,
+            institucion_nombre
+        } = institucion
+
+        const item = gacetas.find((e) => e.gaceta_id === parseInt(id,10)) 
+
+        return (
+            <>
+                <Header4 />
+                <div className="page-content ">
+                    <Banner title="Post With Right Sidebar" pagename="Post right sidebar" description="The essence of interior design will always be about people and how they live. It is about the realities of what makes for an attractive, civilized." bgimage={bnrimg} />
+                    {/* SECTION CONTENT START */}
+                    <div className="section-full p-tb80 inner-page-padding">
+                        <div className="container">
+                            <div className="row">
+                                <div className="col-lg-8 col-md-12 col-sm-12">
+                                    <div className="blog-single-space max-w900 ml-auto mr-auto">
+                                        {/* BLOG START */}
+                                        <div className="blog-post blog-detail text-black">
+                                            <div className="sx-post-media">
+                                                <div className="portfolio-item" >
+                                                <Document className="pdf" file={`${process.env.REACT_APP_ROOT_API}/Gaceta/${item.gaceta_documento}`}> 
+                                                    <Page pageNumber={1} width={600}/> 
+                                                </Document>
+                                                </div>
+                                            </div>
+                                            <div className="sx-post-meta  m-t20">
+                                                <ul>
+                                                    <li className="post-date"><strong>{formatearFecha(item.gaceta_fecha)}</strong> </li>
+                                                    <li className="post-author"><NavLink to={"/blog-masonry"}><span>{institucion_nombre}</span></NavLink> </li>
+                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TYPE.GACETAS}</span></NavLink> </li>
+                                                </ul>
+                                            </div>
+                                            <div className="sx-post-title ">
+                                                <h3 className="post-title">{item.gaceta_titulo}</h3>
+                                            </div>                                            
+                                        </div>
+                                        {/* OUR BLOG START */}
+                                        {/* TITLE START */}
+                                        <div className="section-head">
+                                            <div className="sx-separator-outer separator-left">
+                                                <div className="sx-separator bg-white bg-moving bg-repeat-x" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
+                                                    <h3 className="sep-line-one">Blog</h3>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {/* TITLE END */}
+                                        {/* BLOG START */}
+                                        <div className="section-content">
+                                            <div className="row">
+                                                <div className="col-md-6 col-sm-6">
+                                                    <div className="blog-post blog-grid date-style-2">
+                                                        <div className="sx-post-media sx-img-effect img-reflection">
+                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic1.jpg')} alt="" /></NavLink>
+                                                        </div>
+                                                        <div className="sx-post-info p-t30">
+                                                            <div className="sx-post-meta ">
+                                                                <ul>
+                                                                    <li className="post-date"><strong>05</strong> <span>Sep</span> </li>
+                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
+                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div className="sx-post-title ">
+                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>We’ll nail your next project, because...</NavLink></h4>
+                                                            </div>
+                                                            <div className="sx-post-readmore">
+                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-md-6 col-sm-6">
+                                                    <div className="blog-post blog-grid date-style-2">
+                                                        <div className="sx-post-media sx-img-effect img-reflection">
+                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic2.jpg')} alt="" /></NavLink>
+                                                        </div>
+                                                        <div className="sx-post-info p-t30">
+                                                            <div className="sx-post-meta ">
+                                                                <ul>
+                                                                    <li className="post-date"><strong>25</strong> <span>Sep</span> </li>
+                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
+                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div className="sx-post-title ">
+                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>Helping you and your house become...</NavLink></h4>
+                                                            </div>
+                                                            <div className="sx-post-readmore">
+                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>                                       
+                                    </div>
+                                </div>
+                                {/* SIDE BAR START */}
+                                <div className="col-lg-4 col-md-12 col-sm-12 sticky_column">
+                                    <BlogSidebar />
+                                </div>
+                                {/* SIDE BAR END */}
+                            </div>
+                        </div>
+                    </div>
+                    {/* SECTION CONTENT END */}
+                </div>
+
+                <Footer />
+            </>
+        );
+      }  
+      
+    /* COMPONENTE PARA EVENTOS */      
+      if (
+        !loading_institucion &&
+        !loading_static_data &&
+        !loading_eventos &&
+        !loading_static_data_key &&
+        category === TYPE.EVENTOS
+        ) 
+        {
+
+        /* DATOS OBTENIDOS DESDE LA STORE API */
+        const {
+            txt_content_banner_detail,
+            txt_content_btn     
+        } = staticData
+
+        /* DATOS OBTENIDOS DESDE LA STORE STATICA*/
+        const {
+            institucion_iniciales,
+            institucion_nombre
+        } = institucion
+
+        const item = eventos.find((e) => e.evento_id === parseInt(id,10)) 
+
+        return (
+            <>
+                <Header4 />
+                <div className="page-content ">
+                    <Banner title="Post With Right Sidebar" pagename="Post right sidebar" description="The essence of interior design will always be about people and how they live. It is about the realities of what makes for an attractive, civilized." bgimage={bnrimg} />
+                    {/* SECTION CONTENT START */}
+                    <div className="section-full p-tb80 inner-page-padding">
+                        <div className="container">
+                            <div className="row">
+                                <div className="col-lg-8 col-md-12 col-sm-12">
+                                    <div className="blog-single-space max-w900 ml-auto mr-auto">
+                                        {/* BLOG START */}
+                                        <div className="blog-post blog-detail text-black">
+                                            <div className="sx-post-media">
+                                                <div className="portfolio-item">
+                                                    <img className="img-responsive" src={`${process.env.REACT_APP_ROOT_API}/Eventos/${item.evento_imagen}`} alt="" />
+                                                </div>
+                                            </div>
+                                            <div className="sx-post-meta  m-t20">
+                                                <ul>
+                                                    <li className="post-date"><strong>{formatearFecha(item.evento_fecha)}</strong> </li>
+                                                    <li className="post-author"><NavLink to={"/blog-masonry"}><span>{institucion_nombre}</span></NavLink> </li>
+                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TYPE.EVENTOS}</span></NavLink> </li>
+                                                </ul>
+                                            </div>
+                                            <div className="sx-post-title ">
+                                                <h3 className="post-title">{item.evento_titulo}</h3>
+                                            </div>
+                                            <div className="sx-post-text">
+                                                <div dangerouslySetInnerHTML={{ __html: item.evento_descripcion }}></div>                                                
+                                            </div>                                            
+                                        </div>
+                                        {/* OUR BLOG START */}
+                                        {/* TITLE START */}
+                                        <div className="section-head">
+                                            <div className="sx-separator-outer separator-left">
+                                                <div className="sx-separator bg-white bg-moving bg-repeat-x" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
+                                                    <h3 className="sep-line-one">Blog</h3>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {/* TITLE END */}
+                                        {/* BLOG START */}
+                                        <div className="section-content">
+                                            <div className="row">
+                                                <div className="col-md-6 col-sm-6">
+                                                    <div className="blog-post blog-grid date-style-2">
+                                                        <div className="sx-post-media sx-img-effect img-reflection">
+                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic1.jpg')} alt="" /></NavLink>
+                                                        </div>
+                                                        <div className="sx-post-info p-t30">
+                                                            <div className="sx-post-meta ">
+                                                                <ul>
+                                                                    <li className="post-date"><strong>05</strong> <span>Sep</span> </li>
+                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
+                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div className="sx-post-title ">
+                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>We’ll nail your next project, because...</NavLink></h4>
+                                                            </div>
+                                                            <div className="sx-post-readmore">
+                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-md-6 col-sm-6">
+                                                    <div className="blog-post blog-grid date-style-2">
+                                                        <div className="sx-post-media sx-img-effect img-reflection">
+                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic2.jpg')} alt="" /></NavLink>
+                                                        </div>
+                                                        <div className="sx-post-info p-t30">
+                                                            <div className="sx-post-meta ">
+                                                                <ul>
+                                                                    <li className="post-date"><strong>25</strong> <span>Sep</span> </li>
+                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
+                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div className="sx-post-title ">
+                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>Helping you and your house become...</NavLink></h4>
+                                                            </div>
+                                                            <div className="sx-post-readmore">
+                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>                                        
+                                    </div>
+                                </div>
+                                {/* SIDE BAR START */}
+                                <div className="col-lg-4 col-md-12 col-sm-12 sticky_column">
+                                    <BlogSidebar />
+                                </div>
+                                {/* SIDE BAR END */}
+                            </div>
+                        </div>
+                    </div>
+                    {/* SECTION CONTENT END */}
+                </div>
+
+                <Footer />
+            </>
+        );
+      }  
+
+    /* COMPONENTE PARA VIDEOS */      
+      if (
+        !loading_institucion &&
+        !loading_static_data &&
+        !loading_videos &&
+        !loading_static_data_key &&
+        category === TYPE.VIDEOS
+        ) 
+        {
+
+        /* DATOS OBTENIDOS DESDE LA STORE API */
+        const {
+            txt_content_banner_detail,
+            txt_content_btn     
+        } = staticData
+
+        /* DATOS OBTENIDOS DESDE LA STORE STATICA*/
+        const {
+            institucion_iniciales,
+            institucion_nombre
+        } = institucion
+
+        const item = videos.find((e) => e.video_id === parseInt(id,10)) 
+
+        return (
+            <>
+                <Header4 />
+                <div className="page-content ">
+                    <Banner title="Post With Right Sidebar" pagename="Post right sidebar" description="The essence of interior design will always be about people and how they live. It is about the realities of what makes for an attractive, civilized." bgimage={bnrimg} />
+                    {/* SECTION CONTENT START */}
+                    <div className="section-full p-tb80 inner-page-padding">
+                        <div className="container">
+                            <div className="row">
+                                <div className="col-lg-8 col-md-12 col-sm-12">
+                                    <div className="blog-single-space max-w900 ml-auto mr-auto">
+                                        {/* BLOG START */}
+                                        <div className="blog-post blog-detail text-black">
+                                            <div className="sx-post-media">
+                                                <div className="portfolio-item">
+                                                <iframe
+                                                    width="560" // Ancho deseado
+                                                    height="315" // Alto deseado
+                                                    src={item.video_enlace} // URL de embed del video
+                                                    title="Video Embed"
+                                                    frameBorder="0"
+                                                    allowFullScreen
+                                                ></iframe>
+                                                </div>
+                                            </div>
+                                            <div className="sx-post-meta  m-t20">
+                                                <ul>
+                                                    <li className="post-author"><NavLink to={"/blog-masonry"}><span>{institucion_nombre}</span></NavLink> </li>
+                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TYPE.VIDEOS}</span></NavLink> </li>
+                                                </ul>
+                                            </div>
+                                            <div className="sx-post-title ">
+                                                <h3 className="post-title">{item.video_titulo}</h3>
+                                            </div>
+                                            <div className="sx-post-text">
+                                                <div dangerouslySetInnerHTML={{ __html: item.video_breve_descripcion }}></div>                                                                                                
+                                            </div>                                            
+                                        </div>
+                                        {/* OUR BLOG START */}
+                                        {/* TITLE START */}
+                                        <div className="section-head">
+                                            <div className="sx-separator-outer separator-left">
+                                                <div className="sx-separator bg-white bg-moving bg-repeat-x" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
+                                                    <h3 className="sep-line-one">Blog</h3>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {/* TITLE END */}
+                                        {/* BLOG START */}
+                                        <div className="section-content">
+                                            <div className="row">
+                                                <div className="col-md-6 col-sm-6">
+                                                    <div className="blog-post blog-grid date-style-2">
+                                                        <div className="sx-post-media sx-img-effect img-reflection">
+                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic1.jpg')} alt="" /></NavLink>
+                                                        </div>
+                                                        <div className="sx-post-info p-t30">
+                                                            <div className="sx-post-meta ">
+                                                                <ul>
+                                                                    <li className="post-date"><strong>05</strong> <span>Sep</span> </li>
+                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
+                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div className="sx-post-title ">
+                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>We’ll nail your next project, because...</NavLink></h4>
+                                                            </div>
+                                                            <div className="sx-post-readmore">
+                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-md-6 col-sm-6">
+                                                    <div className="blog-post blog-grid date-style-2">
+                                                        <div className="sx-post-media sx-img-effect img-reflection">
+                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic2.jpg')} alt="" /></NavLink>
+                                                        </div>
+                                                        <div className="sx-post-info p-t30">
+                                                            <div className="sx-post-meta ">
+                                                                <ul>
+                                                                    <li className="post-date"><strong>25</strong> <span>Sep</span> </li>
+                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
+                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div className="sx-post-title ">
+                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>Helping you and your house become...</NavLink></h4>
+                                                            </div>
+                                                            <div className="sx-post-readmore">
+                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>                                        
+                                    </div>
+                                </div>
+                                {/* SIDE BAR START */}
+                                <div className="col-lg-4 col-md-12 col-sm-12 sticky_column">
+                                    <BlogSidebar />
+                                </div>
+                                {/* SIDE BAR END */}
+                            </div>
+                        </div>
+                    </div>
+                    {/* SECTION CONTENT END */}
+                </div>
+
+                <Footer />
+            </>
+        );
+      } 
+      
+      /* COMPONENTE PARA CONVOCATORIAS - COMUNICADOS - AVISOS */      
+      if (
+        (!loading_institucion &&
+        !loading_static_data &&
+        !loading_convocatorias &&
+        !loading_static_data_key
+        ) &&
+        (category === TYPE.CONVOCATORIAS ||
+        category === TYPE.COMUNICADOS ||
+        category === TYPE.AVISOS 
+        )
+        ) 
+        {
+
+        /* DATOS OBTENIDOS DESDE LA STORE API */
+        const {
+            txt_content_banner_detail,
+            txt_content_btn     
+        } = staticData
+
+        /* DATOS OBTENIDOS DESDE LA STORE STATICA*/
+        const {
+            institucion_iniciales,
+            institucion_nombre
+        } = institucion
+
+        const item = convocatorias.find((e) => e.idconvocatorias === parseInt(id,10)) 
+
+        return (
+            <>
+                <Header4 />
+                <div className="page-content ">
+                    <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={bnrimg} />
+                    {/* SECTION CONTENT START */}
+                    <div className="section-full p-tb80 inner-page-padding">
+                        <div className="container">
+                            <div className="row">
+                                <div className="col-lg-8 col-md-12 col-sm-12">
+                                    <div className="blog-single-space max-w900 ml-auto mr-auto">
+                                        {/* BLOG START */}
+                                        <div className="blog-post blog-detail text-black">
+                                            <div className="sx-post-media">
+                                                <div className="portfolio-item">
+                                                    <img className="img-responsive" src={`${process.env.REACT_APP_ROOT_API}/Convocatorias/${item.con_foto_portada}`} alt="" />
+                                                </div>
+                                            </div>
+                                            <div className="sx-post-meta  m-t20">
+                                                <ul>
+                                                    <li className="post-date"><strong>{formatearFecha(item.con_fecha_inicio)}</strong> </li>
+                                                    <li className="post-author"><NavLink to={"/blog-masonry"}><span>{institucion_nombre}</span></NavLink> </li>
+                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{category}</span></NavLink> </li>
+                                                </ul>
+                                            </div>
+                                            <div className="sx-post-title ">
+                                                <h3 className="post-title">{item.con_titulo}</h3>
+                                            </div>
+                                            <div className="sx-post-text">
+                                                {/* <div dangerouslySetInnerHTML={{ __html: item.video_breve_descripcion }}></div>                                                                                                 */}
+                                            </div>                                            
+                                        </div>
+                                        {/* OUR BLOG START */}
+                                        {/* TITLE START */}
+                                        <div className="section-head">
+                                            <div className="sx-separator-outer separator-left">
+                                                <div className="sx-separator bg-white bg-moving bg-repeat-x" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
+                                                    <h3 className="sep-line-one">Blog</h3>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {/* TITLE END */}
+                                        {/* BLOG START */}
+                                        <div className="section-content">
+                                            <div className="row">
+                                                <div className="col-md-6 col-sm-6">
+                                                    <div className="blog-post blog-grid date-style-2">
+                                                        <div className="sx-post-media sx-img-effect img-reflection">
+                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic1.jpg')} alt="" /></NavLink>
+                                                        </div>
+                                                        <div className="sx-post-info p-t30">
+                                                            <div className="sx-post-meta ">
+                                                                <ul>
+                                                                    <li className="post-date"><strong>05</strong> <span>Sep</span> </li>
+                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
+                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div className="sx-post-title ">
+                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>We’ll nail your next project, because...</NavLink></h4>
+                                                            </div>
+                                                            <div className="sx-post-readmore">
+                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-md-6 col-sm-6">
+                                                    <div className="blog-post blog-grid date-style-2">
+                                                        <div className="sx-post-media sx-img-effect img-reflection">
+                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic2.jpg')} alt="" /></NavLink>
+                                                        </div>
+                                                        <div className="sx-post-info p-t30">
+                                                            <div className="sx-post-meta ">
+                                                                <ul>
+                                                                    <li className="post-date"><strong>25</strong> <span>Sep</span> </li>
+                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
+                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div className="sx-post-title ">
+                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>Helping you and your house become...</NavLink></h4>
+                                                            </div>
+                                                            <div className="sx-post-readmore">
+                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>                                        
+                                    </div>
+                                </div>
+                                {/* SIDE BAR START */}
+                                <div className="col-lg-4 col-md-12 col-sm-12 sticky_column">
+                                    <BlogSidebar />
+                                </div>
+                                {/* SIDE BAR END */}
+                            </div>
+                        </div>
+                    </div>
+                    {/* SECTION CONTENT END */}
+                </div>
+
+                <Footer />
+            </>
+        );
+      } 
+
+      /* COMPONENTE PARA CURSOS - SEMINARIOS */      
+      if (
+        (!loading_institucion &&
+        !loading_static_data &&
+        !loading_cursos &&
+        !loading_static_data_key
+        ) &&
+        (category === TYPE.CURSOS ||
+        category === TYPE.SEMINARIOS 
+        )
+        ) 
+        {
+
+        /* DATOS OBTENIDOS DESDE LA STORE API */
+        const {
+            txt_content_banner_detail,
+            txt_content_btn     
+        } = staticData
+
+        /* DATOS OBTENIDOS DESDE LA STORE STATICA*/
+        const {
+            institucion_iniciales,
+            institucion_nombre
+        } = institucion
+
+        const item = cursos.find((e) => e.iddetalle_cursos_academicos === parseInt(id,10))
+
+        return (
+            <>
+                <Header4 />
+                <div className="page-content ">
+                    <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={bnrimg} />
+                    {/* SECTION CONTENT START */}
+                    <div className="section-full p-tb80 inner-page-padding">
+                        <div className="container">
+                            <div className="row">
+                                <div className="col-lg-8 col-md-12 col-sm-12">
+                                    <div className="blog-single-space max-w900 ml-auto mr-auto">
+                                        {/* BLOG START */}
+                                        <div className="blog-post blog-detail text-black">
+                                            <div className="sx-post-media">
+                                                <div className="portfolio-item">
+                                                    <img className="img-responsive" src={`${process.env.REACT_APP_ROOT_API}/Cursos/${item.det_img_portada}`} alt="" />
+                                                </div>
+                                            </div>
+                                            <div className="sx-post-meta  m-t20">
+                                                <ul>
+                                                <li className="post-date"><strong>{formatearFecha(item.det_fecha_ini)}</strong> </li>
+                                                    <li className="post-author"><NavLink to={"/blog-masonry"}><span>{institucion_nombre}</span></NavLink> </li>
+                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TYPE.VIDEOS}</span></NavLink> </li>
+                                                </ul>
+                                            </div>
+                                            <div className="sx-post-title ">
+                                                <h3 className="post-title">{item.det_titulo}</h3>
+                                            </div>
+                                            <div className="sx-post-text">
+                                                {/* <div dangerouslySetInnerHTML={{ __html: item.video_breve_descripcion }}></div>*/}
+                                            </div>                                            
+                                        </div>
+                                        {/* OUR BLOG START */}
+                                        {/* TITLE START */}
+                                        <div className="section-head">
+                                            <div className="sx-separator-outer separator-left">
+                                                <div className="sx-separator bg-white bg-moving bg-repeat-x" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
+                                                    <h3 className="sep-line-one">Blog</h3>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {/* TITLE END */}
+                                        {/* BLOG START */}
+                                        <div className="section-content">
+                                            <div className="row">
+                                                <div className="col-md-6 col-sm-6">
+                                                    <div className="blog-post blog-grid date-style-2">
+                                                        <div className="sx-post-media sx-img-effect img-reflection">
+                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic1.jpg')} alt="" /></NavLink>
+                                                        </div>
+                                                        <div className="sx-post-info p-t30">
+                                                            <div className="sx-post-meta ">
+                                                                <ul>
+                                                                    <li className="post-date"><strong>05</strong> <span>Sep</span> </li>
+                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
+                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div className="sx-post-title ">
+                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>We’ll nail your next project, because...</NavLink></h4>
+                                                            </div>
+                                                            <div className="sx-post-readmore">
+                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-md-6 col-sm-6">
+                                                    <div className="blog-post blog-grid date-style-2">
+                                                        <div className="sx-post-media sx-img-effect img-reflection">
+                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic2.jpg')} alt="" /></NavLink>
+                                                        </div>
+                                                        <div className="sx-post-info p-t30">
+                                                            <div className="sx-post-meta ">
+                                                                <ul>
+                                                                    <li className="post-date"><strong>25</strong> <span>Sep</span> </li>
+                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
+                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div className="sx-post-title ">
+                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>Helping you and your house become...</NavLink></h4>
+                                                            </div>
+                                                            <div className="sx-post-readmore">
+                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>                                        
+                                    </div>
+                                </div>
+                                {/* SIDE BAR START */}
+                                <div className="col-lg-4 col-md-12 col-sm-12 sticky_column">
+                                    <BlogSidebar />
+                                </div>
+                                {/* SIDE BAR END */}
+                            </div>
+                        </div>
+                    </div>
+                    {/* SECTION CONTENT END */}
+                </div>
+
+                <Footer />
+            </>
+        );
+      } 
+
+      return null
 };
 
 export default PostRightSidebar;

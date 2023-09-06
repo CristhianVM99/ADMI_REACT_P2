@@ -1,22 +1,36 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { getLinksInstExtAll, getStaticDataIndex } from '../../api/institucionAPI';
+import { useQuery } from '@tanstack/react-query';
 
-const logos = [
-    { image: require('./../../images/client-logo/logo1.png') },
-    { image: require('./../../images/client-logo/logo2.png') },
-    { image: require('./../../images/client-logo/logo3.png') },
-    { image: require('./../../images/client-logo/logo4.png') },
-    { image: require('./../../images/client-logo/logo5.png') },
-    { image: require('./../../images/client-logo/logo6.png') },
-    { image: require('./../../images/client-logo/logo7.png') },
-    { image: require('./../../images/client-logo/logo8.png') }
-]
+const ClientsLogo1 = () =>{
 
-var bgimg1 = require('./../../images/background/bg-12.jpg');
-var bgimg2 = require('./../../images/background/cross-line2.png');
+    const { isLoading: loading_links_externos, data: links } = useQuery({
+        queryKey: ['links_externos'],
+        queryFn: getLinksInstExtAll,
+    })
 
-class ClientsLogo1 extends React.Component {
-    render() {
+    const TIPO_LINK = {
+        KARDEX : 'KARDEX'
+    }
+
+
+    /* OBTENCION DE INFORMACION DEL STORE STATICO */
+    const { isLoading: loading_static_data, data: staticData } = useQuery({
+        queryKey: ['staticDataIndex'],
+        queryFn: getStaticDataIndex,
+    });
+    
+    var bgimg1 = require('./../../images/background/bg-12.jpg');
+    var bgimg2 = require('./../../images/background/cross-line2.png');
+
+    if(!loading_links_externos && !loading_static_data){
+        const {
+            txt_content_links_externos,
+            txt_content_links_btn,
+        } = staticData
+
+        const links_filter = links.filter((e)=>e.ei_tipo===TIPO_LINK.KARDEX)
 
         return (
             <>
@@ -26,7 +40,7 @@ class ClientsLogo1 extends React.Component {
                         <div className="section-head">
                             <div className="sx-separator-outer separator-left">
                                 <div className="sx-separator bg-white bg-moving bg-repeat-x" style={{ backgroundImage: 'url(' + bgimg2 + ')' }}>
-                                    <h3 className="sep-line-one">Our Clients</h3>
+                                    <h3 className="sep-line-one">{txt_content_links_externos}</h3>
                                 </div>
                             </div>
                         </div>
@@ -34,12 +48,12 @@ class ClientsLogo1 extends React.Component {
                         <div className="section-content">
                             <div className="client-grid m-b40">
                                 <div className="row justify-content-center">
-                                    {logos.map((item, index) => (
+                                    {links_filter.map((item, index) => (
                                         <div className="col-lg-3 col-md-4 col-sm-6 col-6 m-b30" key={index}>
                                             <NavLink to={"/about-1"} className="client-logo-pic">
-                                                <img src={item.image} alt=""/>
+                                                <img src={`${process.env.REACT_APP_ROOT_API}/InstitucionUpea/LinksExternos/${item.ei_imagen}`} alt=""/>
                                                 <div>
-                                                    <span>View More</span>
+                                                    <span>{txt_content_links_btn}</span>
                                                 </div>
                                             </NavLink>
                                         </div>
@@ -49,12 +63,13 @@ class ClientsLogo1 extends React.Component {
                         </div>
                     </div>
                     <div className="hilite-title text-left p-l50 text-uppercase">
-                        <strong>Clients</strong>
+                        <strong>Links</strong>
                     </div>
                 </div>
             </>
         );
+    }    
+    return null
     }
-};
 
 export default ClientsLogo1;

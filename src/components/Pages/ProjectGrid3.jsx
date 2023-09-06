@@ -1,79 +1,50 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import Header4 from './../Common/Header4';
 import Footer from './../Common/Footer';
 import Banner from './../Elements/Banner';
+import { Document, Page, pdfjs } from "react-pdf";
+import { getGacetas, getInstitucion, getStaticDataInstitucion } from '../../api/institucionAPI';
+import { useQuery } from '@tanstack/react-query';
 
-const filters = [
-    { label: "Architecture", filter: ".cat-1" },
-    { label: "Decore", filter: ".cat-2" },
-    { label: "Outdoor", filter: ".cat-3" },
-    { label: "Interiors", filter: ".cat-4" },
-    { label: "Residential", filter: ".cat-5" }
-];
+const ProjectGrid3 = () => {
 
-const projects = [
-    {
-        image: require('./../../images/projects/portrait/pic1.jpg'),
-        title: 'Interior Work Avroko',
-        address: 'Muscat, Sultanate of Oman',
-        filter: 'cat-1'
-    },
-    {
-        image: require('./../../images/projects/portrait/pic2.jpg'),
-        title: 'Vilters',
-        address: 'Muscat, Sultanate of Oman',
-        filter: 'cat-2'
-    },
-    {
-        image: require('./../../images/projects/portrait/pic3.jpg'),
-        title: 'Industrial Design',
-        address: 'Muscat, Sultanate of Oman',
-        filter: 'cat-3'
-    },
-    {
-        image: require('./../../images/projects/portrait/pic4.jpg'),
-        title: 'House Bluprint',
-        address: 'Muscat, Sultanate of Oman',
-        filter: 'cat-4'
-    },
-    {
-        image: require('./../../images/projects/portrait/pic5.jpg'),
-        title: 'Modern Bathroom',
-        address: 'Muscat, Sultanate of Oman',
-        filter: 'cat-5'
-    },
-    {
-        image: require('./../../images/projects/portrait/pic6.jpg'),
-        title: 'Bellevue Project',
-        address: 'Muscat, Sultanate of Oman',
-        filter: 'cat-4'
-    },
-    {
-        image: require('./../../images/projects/portrait/pic7.jpg'),
-        title: 'Qatar Pavilion',
-        address: 'Muscat, Sultanate of Oman',
-        filter: 'cat-3'
-    },
-    {
-        image: require('./../../images/projects/portrait/pic8.jpg'),
-        title: 'Museum',
-        address: 'Muscat, Sultanate of Oman',
-        filter: 'cat-2'
-    },
-    {
-        image: require('./../../images/projects/portrait/pic9.jpg'),
-        title: 'Modern house',
-        address: 'Muscat, Sultanate of Oman',
-        filter: 'cat-1'
-    }
-]
+    /* OBTENEMOS EL TIPO DE CATEGORIA */
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const category = searchParams.get('tipo').toUpperCase();
 
-var bnrimg = require('./../../images/banner/3.jpg');
-var bgimg1 = require('./../../images/background/cross-line.png');
+    /* OBTENCION DE INFORMACION DEL STORE STATICO CATEGORY */
+    const { isLoading: loading_static_data, data: staticData } = useQuery({
+        queryKey: ['staticDataInstitucion'],
+        queryFn: getStaticDataInstitucion,
+    });
 
-class ProjectGrid3 extends React.Component {
-    componentDidMount() {
+    /* OBTENCION DE INFORMACION DEL STORE API INSTITUCION*/
+    const { isLoading: loading_institucion, data: institucion } = useQuery({
+        queryKey: ['institucion'],
+        queryFn: getInstitucion,
+    })
+
+    /* OBTENCION DE INFORMACION DEL STORE API GACETAS*/
+    const { isLoading: loading_gacetas, data: gacetas } = useQuery({
+        queryKey: ['gacetas'],
+        queryFn: getGacetas,
+    })
+
+    const filters = [
+        { label: "CONVENIOS", filter: ".CONVENIOS" },
+        { label: "PASANTIAS", filter: ".PASANTIAS" },
+        { label: "TRABAJOS", filter: ".TRABAJOS" },
+    ];        
+    
+    var bnrimg = require('./../../images/banner/3.jpg');
+    var bgimg1 = require('./../../images/background/cross-line.png');    
+
+    useEffect(()=>{
+
+        pdfjs.GlobalWorkerOptions.workerSrc =`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+
         function loadScript(src) {
 
             return new Promise(function (resolve, reject) {
@@ -91,59 +62,98 @@ class ProjectGrid3 extends React.Component {
         };
 
         loadScript('./assets/js/custom.js');
+    })
 
-    };
-    render() {
+    if(!loading_institucion && !loading_static_data && !loading_gacetas){
+
+        /* DATOS OBTENIDOS DESDE LA STORE API */
+        const {
+            txt_content_banner_institucion   
+        } = staticData
+
+        /* DATOS OBTENIDOS DESDE LA STORE STATICA*/
+        const {
+            institucion_iniciales,
+            institucion_nombre
+        } = institucion
+
+        const filterconvenios = gacetas.filter((e)=> e.gaceta_titulo.includes("CONVENIO"))
+
+        const convenios = filterconvenios.map((item) => {
+            // Copiar el objeto existente y agregar el nuevo campo
+            return {
+              ...item, // Copiar el objeto existente
+              filter: 'CONVENIOS'
+            };
+        });
+
+
+        const filterpasantias = gacetas.filter((e)=> e.gaceta_titulo.includes("PASANTIA"))
+
+        const pasantias = filterpasantias.map((item) => {
+            // Copiar el objeto existente y agregar el nuevo campo
+            return {
+              ...item, // Copiar el objeto existente
+              filter: 'PASANTIAS'
+            };
+        });
+
+        const filtertrabajos = gacetas.filter((e)=> e.gaceta_titulo.includes("TRABAJO DIRIGIDO"))
+
+        const trabajos = filtertrabajos.map((item) => {
+            // Copiar el objeto existente y agregar el nuevo campo
+            return {
+              ...item, // Copiar el objeto existente
+              filter: 'TRABAJOS'
+            };
+        });
+
+        const items = convenios.concat(pasantias, trabajos);                
+
         return (
             <>
                 <Header4 />
-                <div className="page-content">
-                    <Banner title="Grid 3 Columns" pagename="Project With Grid 3 Columns" description="The essence of interior design will always be about people and how they live. It is about the realities of what makes for an attractive, civilized." bgimage={bnrimg}/>
+                {items && <div className="page-content">
+                    <Banner title={category} pagename={category} description={txt_content_banner_institucion} bgimage={bnrimg}/>
                     {/* SECTION CONTENT START */}
                     <div className="section-full p-tb80 inner-page-padding">
                         <div className="container">
                             {/* Filter Nav START */}
                             <div className="filter-wrap p-b30 text-center">
                                 <ul className="filter-navigation masonry-filter clearfix">
-                                    <li className="active"><NavLink to={"#"} className="btn from-top" data-filter="*" data-hover="All">All</NavLink></li>
+                                    <li ><NavLink to={"#"} className="btn from-top" data-filter="*" data-hover="All">All</NavLink></li>
                                     {filters.map((item, index) => (
-                                        <li key={index}><NavLink to={"#"} className="btn from-top" data-filter={item.filter} >{item.label}</NavLink></li>
+                                        <li key={index} className={`${item.filter === `.`+category ? `active`  : ""}`}><NavLink to={"#"} className={`btn from-top`} data-filter={item.filter} >{item.label}</NavLink></li>
                                     ))}
                                 </ul>
                             </div>
                             {/* Filter Nav END */}
                             {/* GALLERY CONTENT START */}
                             <ul className="masonry-outer mfp-gallery work-grid row clearfix list-unstyled">
-                                {projects.map((item, index) => (
-                                    <div key={index} className={`${item.filter} masonry-item  col-lg-4 col-md-6 col-sm-12 m-b30`}>
+                                {items.map((item, index) => (
+                                    <div key={index} className={`${item.filter} masonry-item  col-lg-4 col-md-6 col-sm-12 m-b30`} style={{ boxShadow: item.filter === category  ? '0px 0px 20px rgba(0,0,0,.5)' : 'none' }}>
                                         <div className="sx-box image-hover-block">
-                                            <div className="sx-thum-bx">
-                                                <img src={item.image} alt="" />
+                                            <div className="sx-thum-bx" style={{ height: '500px', width: '100%' }}>
+                                                <Document className="pdf" file={`${process.env.REACT_APP_ROOT_API}/Gaceta/${item.gaceta_documento}`}> 
+                                                    <Page pageNumber={1} height={500}/> 
+                                                </Document>
                                             </div>
-                                            <div className="sx-info  p-t20 text-white">
-                                                <h4 className="sx-tilte"><NavLink to={"/project-detail1"}>{item.title}</NavLink></h4>
-                                                <p className="m-b0">{item.address}</p>
-                                            </div>
-                                            <a className="mfp-link" href={item.image}>
-                                                <i className="fa fa-arrows-alt" />
-                                            </a>
+                                            <div className="sx-info p-t20 text-white">
+                                                <a href={`${process.env.REACT_APP_ROOT_API}/Gaceta/${item.gaceta_documento}`} target='_blank' style={{textAlign: 'center', display:'block', marginBottom: '3em'}}><i className="fa fa-download" style={{fontSize : '6em'}} /></a>
+                                                <h4 className="sx-tilte"><a href={`${process.env.REACT_APP_ROOT_API}/Gaceta/${item.gaceta_documento}`} target='_blank'>{item.gaceta_titulo}</a></h4>
+                                                <p className="m-b0">{institucion_iniciales} - {institucion_nombre}</p>                                                
+                                            </div>                                            
                                         </div>
                                     </div>
                                 ))}
-                            </ul>
-                            {/* GALLERY CONTENT END */}
-                            <div className="text-center load-more-btn-outer" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
-                                <button className="site-button-secondry btn-half"><span>Load More</span></button>
-                            </div>
+                            </ul>                                                        
                         </div>
                     </div>
-                    {/* SECTION CONTENT END  */}
-                </div>
-
+                </div>}                
                 <Footer />
             </>
         );
-    };
+    }
 };
 
 export default ProjectGrid3;

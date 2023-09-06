@@ -1,100 +1,113 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Navigation from './Navigation';
 import { NavLink } from 'react-router-dom';
+import { getInstitucion,getStaticData } from '../../api/institucionAPI';
+import { useQuery } from '@tanstack/react-query';
 
-class Header4 extends React.Component {
+function Header4(props) {
+    const [logo, setLogo] = useState(require('./../../images/logo-light.png'));
+    const [isSearchActive, setIsSearchActive] = useState(false);
 
-    constructor(props) {
-        super(props);
-        this.state = { logo: require('./../../images/logo-light.png') };
-    }
-
-    state = { isSearchActive: false };
-
-    handleSearchToggle = () => {
-        this.setState({ isSearchActive: !this.state.isSearchActive });
+    const handleSearchToggle = () => {
+        setIsSearchActive(!isSearchActive);
     };
 
-    componentDidMount() {
+    const { isLoading: loading_institucion, data: institucion } = useQuery({
+        queryKey: ['institucion'],
+        queryFn: getInstitucion,
+    })
+    const { isLoading: loading_static_data, data: staticData } = useQuery({
+        queryKey: ['staticData'],
+        queryFn: getStaticData,
+    });
 
+    useEffect(() => {
         const handleScroll = () => {
-            const offset = window.scrollY;
+    const offset = window.scrollY;
+    const stickyheader = document.querySelector('.sticky-header');
 
-            const stickyheader = document.querySelector('.sticky-header ');
-
-            if (offset >= 100) {
-                stickyheader.classList.add('is-fixed');
-                stickyheader.classList.add('color-fill');
-
-            } else {
-                stickyheader.classList.remove('is-fixed');
-                stickyheader.classList.remove('color-fill');
-            }
+    if (stickyheader) {
+        if (offset >= 100) {
+            stickyheader.classList.add('is-fixed');
+            stickyheader.classList.add('color-fill');
+        } else {
+            stickyheader.classList.remove('is-fixed');
+            stickyheader.classList.remove('color-fill');
         }
+    }
+};
 
         window.addEventListener('scroll', handleScroll);
 
         window.updateTopMostParent = (logopath) => {
-            this.setState({ logo: logopath });
+            setLogo(logopath);
         };
-    }
 
-    render() {
+        // Limpia el event listener cuando el componente se desmonta
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
 
-        const isSearchActive = this.state.isSearchActive;
+    if(!loading_institucion && !loading_static_data){
+
+        const {
+            institucion_correo1,
+            institucion_celular1,
+            institucion_logo,
+        } = institucion
 
         return (
-            <>
-                <header className="site-header nav-wide nav-transparent mobile-sider-drawer-menu">
-                    <div className="sticky-header main-bar-wraper navbar-expand-lg">
-                        <div className="main-bar">
-                            <div className="container clearfix">
-                                <div className="logo-header">
-                                    <div className="logo-header-inner logo-header-one">
-                                        <NavLink to={"./"}>
-                                            <img src={this.state.logo} alt="Inteshape" />
-                                        </NavLink>
+            <header className="site-header nav-wide nav-transparent mobile-sider-drawer-menu">
+                <div className="sticky-header main-bar-wraper navbar-expand-lg">
+                    <div className="main-bar">
+                        <div className="container clearfix">
+                            <div className="logo-header">
+                                <div className="logo-header-inner logo-header-one">
+                                    <NavLink to={"/"}>
+                                        <img width={70} src={`${process.env.REACT_APP_ROOT_API}/InstitucionUpea/${institucion_logo}`} alt="Inteshape" />
+                                    </NavLink>
+                                </div>
+                            </div>
+                            {/* NAV Toggle Button */}
+                            <button id="mobile-side-drawer" data-target=".header-nav" data-toggle="collapse" type="button" className="navbar-toggler collapsed">
+                                <span className="sr-only">Toggle navigation</span>
+                                <span className="icon-bar icon-bar-first" />
+                                <span className="icon-bar icon-bar-two" />
+                                <span className="icon-bar icon-bar-three" />
+                            </button>
+                            {/* EXTRA NAV */}
+                            <div className="extra-nav">
+                                <div className="extra-cell">
+                                    <NavLink to={"#"} onClick={handleSearchToggle}>
+                                        <i className="fa fa-search" />
+                                    </NavLink>
+                                </div>
+                            </div>
+                            {/* EXTRA Nav */}
+                            {/* MAIN NAVIGATION */}
+                            <div className="header-nav nav-dark navbar-collapse collapse justify-content-center collapse">
+                                <Navigation ></Navigation>
+                            </div>
+                            {/* SITE SEARCH */}
+                            <div id="search" className={isSearchActive ? "open" : null}>
+                                <span className="close" onClick={handleSearchToggle} />
+                                <form role="search" id="searchform" action="/search" method="get" className="radius-xl">
+                                    <div className="input-group">
+                                        <input defaultValue="" name="q" type="search" placeholder="Type to search" />
+                                        <span className="input-group-btn"><button type="button" className="search-btn"><i className="fa fa-search arrow-animation" /></button></span>
                                     </div>
-                                </div>
-                                {/* NAV Toggle Button */}
-                                <button id="mobile-side-drawer" data-target=".header-nav" data-toggle="collapse" type="button" className="navbar-toggler collapsed">
-                                    <span className="sr-only">Toggle navigation</span>
-                                    <span className="icon-bar icon-bar-first" />
-                                    <span className="icon-bar icon-bar-two" />
-                                    <span className="icon-bar icon-bar-three" />
-                                </button>
-                                {/* EXTRA NAV */}
-                                <div className="extra-nav">
-                                    <div className="extra-cell">
-                                        <NavLink to={"#"} onClick={this.handleSearchToggle}> 
-                                            <i className="fa fa-search" />
-                                        </NavLink>
-                                    </div>
-                                </div>
-                                {/* EXTRA Nav */}
-                                {/* MAIN NAVIGATION */}
-                                <div className="header-nav nav-dark navbar-collapse collapse justify-content-center collapse">
-                                    <Navigation />
-                                </div>
-                                {/* SITE SEARCH */}
-                                <div id="search" className={isSearchActive ? "open" : null}>
-                                    <span className="close" onClick={this.handleSearchToggle} />
-                                    <form role="search" id="searchform" action="/search" method="get" className="radius-xl">
-                                        <div className="input-group">
-                                            <input defaultValue="" name="q" type="search" placeholder="Type to search" />
-                                            <span className="input-group-btn"><button type="button" className="search-btn"><i className="fa fa-search arrow-animation" /></button></span>
-                                        </div>
-                                    </form>
-                                </div>
+                                </form>
                             </div>
                         </div>
                     </div>
-                </header>
-
-            </>
-        );
-    };
-};
+                </div>
+            </header>
+        ); 
+    }
+    return null
+}
 
 export default Header4;
+
 

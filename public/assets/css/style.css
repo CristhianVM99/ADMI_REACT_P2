@@ -454,6 +454,10 @@ Version: 1.0
 /*____GENERAL 
 ======================================*/
 
+:root{
+	--color-primario : blue; 
+}
+
 body {
 	background-color: #FFF;
 	font-family: 'Poppins', sans-serif;
@@ -2721,7 +2725,7 @@ padding:80px 15px 50px 15px;
 .ow-img:hover .overlay-bx,
 .ow-portfolio-img:hover .overlay-bx {
 	opacity: 1;
-	visibility: visible;
+	visibility: visible;	
 }
 
 
@@ -3362,7 +3366,7 @@ padding:80px 15px 50px 15px;
 .sx-box[class*="border-"],
 .sx-info[class*="border-"],
 .sx-icon-box-wraper[class*="border-"] {
-	border-color: #eee;
+	border-color: #eee;	
 }
 
 .sx-info.border-1,
@@ -13032,7 +13036,7 @@ background: #000;
 
 .image-hover-block .sx-info .sx-tilte,
 .image-hover-block .sx-info p {
-  opacity: 0;
+  opacity: 0;    
 }
 .image-hover-block a{
 	color:#fff;
@@ -13063,6 +13067,13 @@ background: #000;
   filter: alpha(opacity=20);
   -webkit-opacity: 0.2;
   opacity: 0.2;
+}
+
+.image-hover-block:hover .pdf{
+	zoom: 1;
+	filter: alpha(opacity=20);
+	-webkit-opacity: 0.2;
+	opacity: 0.2;
 }
 
 .image-hover-block:hover .sx-info .sx-tilte,
@@ -15682,3 +15693,11 @@ form.woocommerce-ordering:after {
 }
 
 .woocommerce-result-count{font-weight: 600;}
+
+
+/* REACT - PDF */
+.react-pdf__Page__textContent.textLayer,
+.react-pdf__Page__annotations.annotationLayer {
+	
+  display: none !important;
+}

@@ -1,9 +1,21 @@
-import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
+import { getLinksInstExtAll } from '../../api/institucionAPI';
 
-class Navigation extends React.Component {
+const Navigation = () => {
 
-    componentDidMount() {
+    /* OBTENCION DE INFORMACION DEL STORE LINKS  */
+    const { isLoading: loading_links_externos, data: links } = useQuery({
+        queryKey: ['links_externos'],
+        queryFn: getLinksInstExtAll,
+    })
+
+    const TIPO_LINK = {
+        KARDEX : 'KARDEX'
+    }
+
+    useEffect(()=>{
         function loadScript(src) {
 
             return new Promise(function (resolve, reject) {
@@ -21,34 +33,37 @@ class Navigation extends React.Component {
         };
 
         loadScript('./assets/js/mobilenav.js');
+    })    
+    
+    if(!loading_links_externos){
 
-    };
+        const links_filter = links.filter((e)=>e.ei_tipo===TIPO_LINK.KARDEX)
 
-    render() {
         return (
             <>
                 <ul className="nav navbar-nav">
                     <li className="active">
-                        <NavLink to={""}>Home</NavLink>
+                        <NavLink to={""}>Nosotros</NavLink>
                         <ul className="sub-menu">
-                            <li><NavLink to={"/"}>Home-1</NavLink></li>
-                            <li><NavLink to={"/home-2"}>Home-2</NavLink></li>
-                            <li><NavLink to={"/home-3"}>Home-3</NavLink></li>
-                            <li><NavLink to={"/home-4"}>Home-4</NavLink></li>
-                            <li><NavLink to={"/home-5"}>Home-5</NavLink></li>
-                            <li><NavLink to={"/home-6"}>Home-6</NavLink></li>
+                            <li><NavLink to={"/about-2"}>Mision y Vision</NavLink></li>
+                            <li><NavLink to={"/contact-us"}>Contacto</NavLink></li>                            
                         </ul>
                     </li>
-                    <li><NavLink to={""}>About us</NavLink>
+                    <li><NavLink to={""}>Academia</NavLink>
                         <ul className="sub-menu">
-                            <li><NavLink to={"/about-1"}>About 1</NavLink></li>
-                            <li><NavLink to={"/about-2"}>About 2</NavLink></li>
+                            <li><NavLink to={"/academia?tipo=calendario"}>Calendario Academico</NavLink></li>
+                            <li><NavLink to={"/academia?tipo=horario"}>Horario</NavLink></li>
+                            <li><NavLink to={"/academia?tipo=planEstudio"}>Plan de Estudio</NavLink></li>
+                            <li><NavLink to={"/academia?tipo=reglamento"}>Reglamento mod. de graduacion</NavLink></li>
                         </ul>
                     </li>
                     <li>
-                        <NavLink to={""}>Pages</NavLink>
+                        <NavLink to={""}>Institucion</NavLink>
                         <ul className="sub-menu">
-                            <li>
+                        <li><NavLink to={"/institucion?tipo=convenios"}>Convenios Institucionales</NavLink></li>
+                            <li><NavLink to={"/institucion?tipo=pasantias"}>Pasantias</NavLink></li>
+                            <li><NavLink to={"/institucion?tipo=trabajos"}>Trabajos Dirigidos</NavLink></li>
+                            {/* <li>
                                 <NavLink to={""}>Services</NavLink>
                                 <ul className="sub-menu">
                                     <li><NavLink to={"/services-1"}>Services 1</NavLink></li>
@@ -63,13 +78,29 @@ class Navigation extends React.Component {
                                     <li><NavLink to={"/team-2"}>Our Team 2</NavLink></li>
                                     <li><NavLink to={"/team-single"}>Team Detail</NavLink></li>
                                 </ul>
-                            </li>
-                            <li><NavLink to={"/our-history"}>Our History</NavLink></li>
-                            <li><NavLink to={"/icon-font"}>Fonts Icons</NavLink></li>
-                            <li><NavLink to={"/error-404"}>Error 404</NavLink></li>
+                            </li> */}                            
                         </ul>
                     </li>
-                    <li>
+                    <li><NavLink to={"/"}>Convocatorias y Cursos</NavLink>
+                        <ul className="sub-menu">
+                            <li><NavLink to={"/blog-grid?tipo=convocatorias"}>Convocatorias</NavLink></li>
+                            <li><NavLink to={"/blog-grid?tipo=comunicados"}>Comunicados</NavLink></li>
+                            <li><NavLink to={"/blog-grid?tipo=avisos"}>Avisos</NavLink></li>
+                            <li><NavLink to={"/blog-grid?tipo=cursos"}>Cursos</NavLink></li>
+                            <li><NavLink to={"/blog-grid?tipo=seminarios"}>Seminarios</NavLink></li>
+                        </ul>
+                    </li>
+                    <li><NavLink to={"/"}>Mas</NavLink>
+                        <ul className="sub-menu">
+                            <li><NavLink to={"/blog-grid?tipo=servicios"}>Servicios</NavLink></li>
+                            <li><NavLink to={"/blog-grid?tipo=ofertas_academicas"}>Ofertas Academicas</NavLink></li>
+                            <li><NavLink to={"/blog-grid?tipo=publicaciones"}>Publicaciones</NavLink></li>
+                            <li><NavLink to={"/blog-grid?tipo=gacetas"}>Gacetas</NavLink></li>
+                            <li><NavLink to={"/blog-grid?tipo=eventos"}>Eventos</NavLink></li>
+                            <li><NavLink to={"/blog-grid?tipo=videos"}>Videos</NavLink></li>
+                        </ul>
+                    </li>
+                    {/* <li>
                         <NavLink to={""}>Projects</NavLink>
                         <ul className="sub-menu">
                             <li><NavLink to={""}>Project Grid Type</NavLink>
@@ -100,34 +131,29 @@ class Navigation extends React.Component {
                                 </ul>
                             </li>
                         </ul>
-                    </li>
+                    </li> */}
                     <li>
-                        <NavLink to={""}>Blog</NavLink>
-                        <ul className="sub-menu">
-                            <li><NavLink to={"/blog-grid"}>Blog Grid</NavLink></li>
-                            <li><NavLink to={"/blog-listing"}>Blog Listing</NavLink></li>
-                            <li><NavLink to={"/blog-masonry"}>Blog Masonry</NavLink></li>
-                            <li><NavLink to={"/blog-single"}>Blog Single</NavLink></li>
-                            <li><NavLink to={"/post-right-sidebar"}>Post Right Sidebar</NavLink></li>
+                        <NavLink to={""}>Kardex</NavLink>
+                        <ul className="sub-menu">                                                        
+                            {links_filter.map((item, index) => (
+                                <li><a href={item.ei_link} target='_blank'>{item.ei_nombre}</a></li>                                                                    
+                            ))}
                         </ul>
                     </li>
                     <li>
-                        <NavLink to={""}>Shop</NavLink>
+                        <NavLink to={""}>Biblioteca</NavLink>
                         <ul className="sub-menu">
-                            <li><NavLink to={"/shop-grid"}>Shop Grid</NavLink></li>
-                            <li><NavLink to={"/shop-list"}>Shop List</NavLink></li>
-                            <li><NavLink to={"/shop-detail"}>Shop Detail</NavLink></li>
-                            <li><NavLink to={"/shop-account"}>My Account</NavLink></li>
-                            <li><NavLink to={"/shop-cart"}>Cart</NavLink></li>
-                            <li><NavLink to={"/shop-checkout"}>Checkout</NavLink></li>
+                            <li><a href={"http://mibiblioteca.upea.bo/"}  target='_blank'>Biblioteca Virtual</a></li>
+                            <li><a href={"https://biblioteca.upea.bo/"} target='_blank'>Biblioteca Upea</a></li>
+                            <li><a href={"http://repositorio.upea.bo/"} target='_blank'>Repositorio</a></li>                            
                         </ul>
                     </li>
-                    <li><NavLink to={"/faq"}>FAQ</NavLink></li>
-                    <li><NavLink to={"/contact-us"}>Contact us</NavLink></li>
+                    {/* <li><NavLink to={"/faq"}>FAQ</NavLink></li>
+                    <li><NavLink to={"/contact-us"}>Contact us</NavLink></li> */}
                 </ul>
             </>
         );
-    };
+    }
 };
 
 export default Navigation;

@@ -19,7 +19,7 @@ class Banner extends React.Component {
                             {/* BREADCRUMB ROW */}
                             <div>
                                 <ul className="sx-breadcrumb breadcrumb-style-2">
-                                <li><NavLink to={"./"}>Home</NavLink></li>
+                                <li><NavLink to={"/"}>INICIO</NavLink></li>
                                     <li>{this.props.pagename}</li>
                                 </ul>
                             </div>
