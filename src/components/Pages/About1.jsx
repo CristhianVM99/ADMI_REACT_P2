@@ -7,13 +7,17 @@ import WhatWeDo6 from './../Elements/WhatWeDo6';
 import Achievements1 from './../Elements/Achievements1';
 import Team2 from './../Elements/Team2';
 import Testimonials2 from './../Elements/Testimonials2';
-import { getStaticDataAcademia } from '../../api/institucionAPI';
+import { getStaticDataAcademia, getStaticImages } from '../../api/institucionAPI';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'react-router-dom';
 
-var bnrimg = require('./../../images/banner/5.jpg');
-
 const About1 = () => {
+
+    /* OBTENCION DE INFORMACION DEL STORE IMAGES */
+    const { isLoading: loading_images, data: images } = useQuery({
+        queryKey: ['getStaticImages'],
+        queryFn: getStaticImages,
+    });
 
     /* OBTENCION DE INFORMACION DEL STORE STATICO */
     const { isLoading: loading_static_data, data: staticData } = useQuery({
@@ -52,28 +56,35 @@ const About1 = () => {
 
         loadScript('./assets/js/custom.js');
     })
-    if(!loading_static_data){
 
+    if(!loading_static_data && !loading_images){
+
+        /* DATOS ESTATICOS */
         const {
             txt_content_banner_academia
-        } = staticData
+        } = staticData        
 
         return (
             <>
                 <Header4 />
                 <div className="page-content">
-                    <Banner title={category} pagename={category} description={txt_content_banner_academia} bgimage={bnrimg}/>
+                    <Banner title={category} pagename={category} description={txt_content_banner_academia} bgimage={images.BgTwo}/>
                     <About2  tipo={tipo}/>
                     {/* <WhatWeDo6 />
                     <Achievements1 />
                     <Team2 />
                     <Testimonials2 separatoralignment="separator-center" /> */}
                 </div>
-
                 <Footer />
             </>
         );
     }
 };
 
+/* =============================================================================
+/
+/    WEB DEVELOPER => CRISTHIAN VILLCA MAMANI
+/    LINKEDIN => https://www.linkedin.com/in/cristhian-villca-mamani-06933b251/
+/
+================================================================================ */ 
 export default About1;

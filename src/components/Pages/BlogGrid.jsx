@@ -3,10 +3,12 @@ import { NavLink, useLocation } from 'react-router-dom';
 import Header4 from './../Common/Header4';
 import Footer from './../Common/Footer';
 import Banner from './../Elements/Banner';
-import { getConvocatorias, getCursos, getEventos, getGacetas, getInstitucion, getOfertasAcademicas, getPublicaciones, getServicios, getStaticCategory, getStaticData, getStaticDataCategory, getStaticDataKey, getVideos } from '../../api/institucionAPI';
+import { getConvocatorias, getCursos, getEventos, getGacetas, getInstitucion, getOfertasAcademicas, getPublicaciones, getServicios, getStaticCategory, getStaticData, getStaticDataCategory, getStaticDataKey, getStaticImages, getVideos } from '../../api/institucionAPI';
 import { useQuery } from '@tanstack/react-query';
 import { AES } from 'crypto-js';
 import { Document, Page, pdfjs } from "react-pdf";
+import { TIPOS } from '../../types/types';
+
 const BlogGrid = () => {        
     
     /* OBTENEMOS EL TIPO DE CATEGORIA */
@@ -14,20 +16,11 @@ const BlogGrid = () => {
     const searchParams = new URLSearchParams(location.search);
     const category = searchParams.get('tipo').toUpperCase();
 
-    /* TIPOS DE CATEGORIAS PERMITIDAS */
-    const TYPE = {
-        CONVOCATORIAS : 'CONVOCATORIAS',
-        COMUNICADOS : 'COMUNICADOS',
-        AVISOS : 'AVISOS',
-        CURSOS : 'CURSOS',
-        SEMINARIOS : 'SEMINARIOS',
-        SERVICIOS : 'SERVICIOS',
-        OFERTAS_ACADEMICAS : 'OFERTAS_ACADEMICAS',
-        PUBLICACIONES: 'PUBLICACIONES',
-        GACETAS: 'GACETAS',
-        EVENTOS: 'EVENTOS',
-        VIDEOS: 'VIDEOS',
-    }
+    /* OBTENCION DE INFORMACION DEL STORE IMAGES */
+    const { isLoading: loading_images, data: images } = useQuery({
+        queryKey: ['getStaticImages'],
+        queryFn: getStaticImages,
+    });
 
     /* OBTENCION DE INFORMACION DEL STORE API INSTITUCION*/
     const { isLoading: loading_institucion, data: institucion } = useQuery({
@@ -133,8 +126,6 @@ const BlogGrid = () => {
         const mes = fecha.getMonth(); // Obtiene el mes (0-11)
         return meses[mes];
     }    
-    
-    const bnrimg = require('./../../images/banner/7.jpg');        
 
     useEffect(()=>{
         pdfjs.GlobalWorkerOptions.workerSrc =`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
@@ -145,8 +136,9 @@ const BlogGrid = () => {
         !loading_institucion &&
         !loading_static_data &&
         !loading_servicios &&
+        !loading_images &&
         !loading_static_data_key &&
-        category === TYPE.SERVICIOS
+        category === TIPOS.SERVICIOS
     ){        
 
     /* CLAVE PARA ENCRYPTACION */    
@@ -173,7 +165,7 @@ const BlogGrid = () => {
             <>
                 <Header4 />
                 <div className="page-content">
-                    <Banner title={category} pagename={category} description={txt_content_banner_category} bgimage={bnrimg}/>
+                    <Banner title={category} pagename={category} description={txt_content_banner_category} bgimage={images.BgFour}/>
                    
                     <div className="section-full p-tb80 bg-white inner-page-padding">
                        
@@ -183,21 +175,21 @@ const BlogGrid = () => {
                                     <div className="masonry-item  col-lg-4 col-md-6 col-sm-12" key={index}>
                                     <div className="blog-post blog-grid date-style-2">
                                         <div className="sx-post-media sx-img-effect img-reflection">
-                                            <NavLink to={`/post-right-sidebar?id=${item.serv_id}&tipo=${TYPE.SERVICIOS}`}><img src={`${process.env.REACT_APP_ROOT_API}/Carrera/Servicios/${item.serv_imagen}`} alt="" /></NavLink>
+                                            <NavLink to={`/detalle?id=${item.serv_id}&tipo=${TIPOS.SERVICIOS}`}><img style={{height: '400px'}} src={`${process.env.REACT_APP_ROOT_API}/Carrera/Servicios/${item.serv_imagen}`} alt="" /></NavLink>
                                         </div>
                                         <div className="sx-post-info p-t30">
                                             <div className="sx-post-meta ">
                                                 <ul>
                                                     <li className="post-date"><strong>{obtenerDiaDeFecha(item.serv_registro)}</strong> <span>{obtenerMesDeFecha(item.serv_registro)}</span> </li>
-                                                    <li className="post-author"><NavLink to={`/post-right-sidebar?id=${item.serv_id}&tipo=${TYPE.SERVICIOS}`}><span>{institucion_iniciales}</span></NavLink> </li>
-                                                    <li className="post-comment"> <NavLink to={`/post-right-sidebar?id=${item.serv_id}&tipo=${TYPE.SERVICIOS}`}>{TYPE.SERVICIOS}</NavLink> </li>
+                                                    <li className="post-author"><NavLink to={`/detalle?id=${item.serv_id}&tipo=${TIPOS.SERVICIOS}`}><span>{institucion_iniciales}</span></NavLink> </li>
+                                                    <li className="post-comment"> <NavLink to={`/detalle?id=${item.serv_id}&tipo=${TIPOS.SERVICIOS}`}>{TIPOS.SERVICIOS}</NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
-                                                <h4 className="post-title"><NavLink to={`/post-right-sidebar?id=${item.serv_id}&tipo=${TYPE.SERVICIOS}`}>{item.serv_nombre}</NavLink></h4>
+                                                <h4 className="post-title"><NavLink to={`/detalle?id=${item.serv_id}&tipo=${TIPOS.SERVICIOS}`}>{item.serv_nombre}</NavLink></h4>
                                             </div>
                                             <div className="sx-post-readmore">
-                                                <NavLink to={`/post-right-sidebar?id=${item.serv_id}&tipo=${TYPE.SERVICIOS}`} title="READ MORE" rel="bookmark" className="site-button-link">{txt_content_btn}</NavLink>
+                                                <NavLink to={`/detalle?id=${item.serv_id}&tipo=${TIPOS.SERVICIOS}`} title="READ MORE" rel="bookmark" className="site-button-link">{txt_content_btn}</NavLink>
                                             </div>
                                         </div>
                                     </div>
@@ -220,8 +212,9 @@ const BlogGrid = () => {
         !loading_institucion &&
         !loading_static_data &&
         !loading_ofertas &&
+        !loading_images &&
         !loading_static_data_key &&
-        category === TYPE.OFERTAS_ACADEMICAS      
+        category === TIPOS.OFERTAS_ACADEMICAS      
     ){       
         
     /* CLAVE PARA ENCRYPTACION */    
@@ -248,7 +241,7 @@ const BlogGrid = () => {
             <>
                 <Header4 />
                 <div className="page-content">
-                    <Banner title={"OFERTAS ACADEMICAS"} pagename={"OFERTAS ACADEMICAS"} description={txt_content_banner_category} bgimage={bnrimg}/>
+                    <Banner title={"OFERTAS ACADEMICAS"} pagename={"OFERTAS ACADEMICAS"} description={txt_content_banner_category} bgimage={images.BgFour}/>
                    
                     <div className="section-full p-tb80 bg-white inner-page-padding">
                        
@@ -258,21 +251,21 @@ const BlogGrid = () => {
                                     <div className="masonry-item  col-lg-4 col-md-6 col-sm-12" key={index}>
                                     <div className="blog-post blog-grid date-style-2">
                                         <div className="sx-post-media sx-img-effect img-reflection">
-                                            <NavLink to={`/post-right-sidebar?id=${item.ofertas_id}&tipo=${TYPE.OFERTAS_ACADEMICAS}`}><img src={`${process.env.REACT_APP_ROOT_API}/Carrera/OfertasAcademicas/${item.ofertas_imagen}`} alt="" /></NavLink>
+                                            <NavLink to={`/detalle?id=${item.ofertas_id}&tipo=${TIPOS.OFERTAS_ACADEMICAS}`}><img style={{height: '400px'}} src={`${process.env.REACT_APP_ROOT_API}/Carrera/OfertasAcademicas/${item.ofertas_imagen}`} alt="" /></NavLink>
                                         </div>
                                         <div className="sx-post-info p-t30">
                                             <div className="sx-post-meta ">
                                                 <ul>
                                                     <li className="post-date"><strong>{obtenerDiaDeFecha(item.ofertas_inscripciones_ini)}</strong> <span>{obtenerMesDeFecha(item.ofertas_inscripciones_ini)}</span> </li>
-                                                    <li className="post-author"><NavLink to={`/post-right-sidebar?id=${item.ofertas_id}&tipo=${TYPE.OFERTAS_ACADEMICAS}`}><span>{institucion_iniciales}</span></NavLink> </li>
-                                                    <li className="post-comment"> <NavLink to={`/post-right-sidebar?id=${item.ofertas_id}&tipo=${TYPE.OFERTAS_ACADEMICAS}`}>{TYPE.OFERTAS_ACADEMICAS}</NavLink> </li>
+                                                    <li className="post-author"><NavLink to={`/detalle?id=${item.ofertas_id}&tipo=${TIPOS.OFERTAS_ACADEMICAS}`}><span>{institucion_iniciales}</span></NavLink> </li>
+                                                    <li className="post-comment"> <NavLink to={`/detalle?id=${item.ofertas_id}&tipo=${TIPOS.OFERTAS_ACADEMICAS}`}>{TIPOS.OFERTAS_ACADEMICAS}</NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
-                                                <h4 className="post-title"><NavLink to={`/post-right-sidebar?id=${item.ofertas_id}&tipo=${TYPE.OFERTAS_ACADEMICAS}`}>{item.ofertas_titulo}</NavLink></h4>
+                                                <h4 className="post-title"><NavLink to={`/detalle?id=${item.ofertas_id}&tipo=${TIPOS.OFERTAS_ACADEMICAS}`}>{item.ofertas_titulo}</NavLink></h4>
                                             </div>
                                             <div className="sx-post-readmore">
-                                                <NavLink to={`/post-right-sidebar?id=${item.ofertas_id}&tipo=${TYPE.OFERTAS_ACADEMICAS}`} title="READ MORE" rel="bookmark" className="site-button-link">{txt_content_btn}</NavLink>
+                                                <NavLink to={`/detalle?id=${item.ofertas_id}&tipo=${TIPOS.OFERTAS_ACADEMICAS}`} title="READ MORE" rel="bookmark" className="site-button-link">{txt_content_btn}</NavLink>
                                             </div>
                                         </div>
                                     </div>
@@ -295,8 +288,9 @@ const BlogGrid = () => {
         !loading_institucion &&
         !loading_static_data &&
         !loading_publicaciones &&
+        !loading_images &&
         !loading_static_data_key &&
-        category === TYPE.PUBLICACIONES      
+        category === TIPOS.PUBLICACIONES      
     ){
 
     /* CLAVE PARA ENCRYPTACION */    
@@ -323,7 +317,7 @@ const BlogGrid = () => {
             <>
                 <Header4 />
                 <div className="page-content">
-                    <Banner title={category} pagename={category} description={txt_content_banner_category} bgimage={bnrimg}/>
+                    <Banner title={category} pagename={category} description={txt_content_banner_category} bgimage={images.BgFour}/>
                    
                     <div className="section-full p-tb80 bg-white inner-page-padding">
                        
@@ -333,21 +327,21 @@ const BlogGrid = () => {
                                     <div className="masonry-item  col-lg-4 col-md-6 col-sm-12" key={index}>
                                     <div className="blog-post blog-grid date-style-2">
                                         <div className="sx-post-media sx-img-effect img-reflection">
-                                            <NavLink to={`/post-right-sidebar?id=${item.publicaciones_id}&tipo=${TYPE.PUBLICACIONES}`}><img src={`${process.env.REACT_APP_ROOT_API}/Publicaciones/${item.publicaciones_imagen}`} alt="" /></NavLink>
+                                            <NavLink to={`/detalle?id=${item.publicaciones_id}&tipo=${TIPOS.PUBLICACIONES}`}><img src={`${process.env.REACT_APP_ROOT_API}/Publicaciones/${item.publicaciones_imagen}`} alt="" style={{height: '400px'}}/></NavLink>
                                         </div>
                                         <div className="sx-post-info p-t30">
                                             <div className="sx-post-meta ">
                                                 <ul>
                                                     <li className="post-date"><strong>{obtenerDiaDeFecha2(item.publicaciones_fecha)}</strong> <span>{obtenerMesDeFecha2(item.publicaciones_fecha)}</span> </li>
-                                                    <li className="post-author"><NavLink to={`/post-right-sidebar?id=${item.publicaciones_id}&tipo=${TYPE.PUBLICACIONES}`}><span>{item.publicaciones_autor}</span></NavLink> </li>
-                                                    <li className="post-comment"> <NavLink to={`/post-right-sidebar?id=${item.publicaciones_id}&tipo=${TYPE.PUBLICACIONES}`}>{TYPE.PUBLICACIONES}</NavLink> </li>
+                                                    <li className="post-author"><NavLink to={`/detalle?id=${item.publicaciones_id}&tipo=${TIPOS.PUBLICACIONES}`}><span>{item.publicaciones_autor}</span></NavLink> </li>
+                                                    <li className="post-comment"> <NavLink to={`/detalle?id=${item.publicaciones_id}&tipo=${TIPOS.PUBLICACIONES}`}>{TIPOS.PUBLICACIONES}</NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
-                                                <h4 className="post-title"><NavLink to={`/post-right-sidebar?id=${item.publicaciones_id}&tipo=${TYPE.PUBLICACIONES}`}>{item.publicaciones_titulo}</NavLink></h4>
+                                                <h4 className="post-title"><NavLink to={`/detalle?id=${item.publicaciones_id}&tipo=${TIPOS.PUBLICACIONES}`}>{item.publicaciones_titulo}</NavLink></h4>
                                             </div>
                                             <div className="sx-post-readmore">
-                                                <NavLink to={`/post-right-sidebar?id=${item.publicaciones_id}&tipo=${TYPE.PUBLICACIONES}`} title="READ MORE" rel="bookmark" className="site-button-link">{txt_content_btn}</NavLink>
+                                                <NavLink to={`/detalle?id=${item.publicaciones_id}&tipo=${TIPOS.PUBLICACIONES}`} title="READ MORE" rel="bookmark" className="site-button-link">{txt_content_btn}</NavLink>
                                             </div>
                                         </div>
                                     </div>
@@ -370,8 +364,9 @@ const BlogGrid = () => {
         !loading_institucion &&
         !loading_static_data &&
         !loading_gacetas &&
+        !loading_images &&
         !loading_static_data_key &&
-        category === TYPE.GACETAS      
+        category === TIPOS.GACETAS      
     ){
 
     /* CLAVE PARA ENCRYPTACION */    
@@ -398,7 +393,7 @@ const BlogGrid = () => {
             <>
                 <Header4 />
                 <div className="page-content">
-                    <Banner title={category} pagename={category} description={txt_content_banner_category} bgimage={bnrimg}/>
+                    <Banner title={category} pagename={category} description={txt_content_banner_category} bgimage={images.BgFour}/>
                    
                     <div className="section-full p-tb80 bg-white inner-page-padding">
                        
@@ -408,7 +403,7 @@ const BlogGrid = () => {
                                     <div className="masonry-item  col-lg-4 col-md-6 col-sm-12" key={index}>
                                     <div className="blog-post blog-grid date-style-2">
                                         <div className="sx-post-media sx-img-effect img-reflection">
-                                            <NavLink to={`/post-right-sidebar?id=${item.gaceta_id}&tipo=${TYPE.GACETAS}`}>
+                                            <NavLink to={`/detalle?id=${item.gaceta_id}&tipo=${TIPOS.GACETAS}`}>
                                                 <Document className="pdf" file={`${process.env.REACT_APP_ROOT_API}/Gaceta/${item.gaceta_documento}`}> 
                                                     <Page pageNumber={1} height={400}/> 
                                                 </Document>
@@ -418,15 +413,15 @@ const BlogGrid = () => {
                                             <div className="sx-post-meta ">
                                                 <ul>
                                                     <li className="post-date"><strong>{obtenerDiaDeFecha(item.gaceta_fecha)}</strong> <span>{obtenerMesDeFecha(item.gaceta_fecha)}</span> </li>
-                                                    <li className="post-author"><NavLink to={`/post-right-sidebar?id=${item.gaceta_id}&tipo=${TYPE.GACETAS}`}><span>{institucion_iniciales}</span></NavLink> </li>
-                                                    <li className="post-comment"> <NavLink to={`/post-right-sidebar?id=${item.gaceta_id}&tipo=${TYPE.GACETAS}`}>{TYPE.GACETAS}</NavLink> </li>
+                                                    <li className="post-author"><NavLink to={`/detalle?id=${item.gaceta_id}&tipo=${TIPOS.GACETAS}`}><span>{institucion_iniciales}</span></NavLink> </li>
+                                                    <li className="post-comment"> <NavLink to={`/detalle?id=${item.gaceta_id}&tipo=${TIPOS.GACETAS}`}>{TIPOS.GACETAS}</NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
-                                                <h4 className="post-title"><NavLink to={`/post-right-sidebar?id=${item.gaceta_id}&tipo=${TYPE.GACETAS}`}>{item.gaceta_titulo}</NavLink></h4>
+                                                <h4 className="post-title"><NavLink to={`/detalle?id=${item.gaceta_id}&tipo=${TIPOS.GACETAS}`}>{item.gaceta_titulo}</NavLink></h4>
                                             </div>
                                             <div className="sx-post-readmore">
-                                                <NavLink to={`/post-right-sidebar?id=${item.gaceta_id}&tipo=${TYPE.GACETAS}`} title="READ MORE" rel="bookmark" className="site-button-link">{txt_content_btn}</NavLink>
+                                                <NavLink to={`/detalle?id=${item.gaceta_id}&tipo=${TIPOS.GACETAS}`} title="READ MORE" rel="bookmark" className="site-button-link">{txt_content_btn}</NavLink>
                                             </div>
                                         </div>
                                     </div>
@@ -449,8 +444,9 @@ const BlogGrid = () => {
         !loading_institucion &&
         !loading_static_data &&
         !loading_eventos &&
+        !loading_images &&
         !loading_static_data_key &&
-        category === TYPE.EVENTOS      
+        category === TIPOS.EVENTOS      
     ){
 
     /* CLAVE PARA ENCRYPTACION */    
@@ -477,7 +473,7 @@ const BlogGrid = () => {
             <>
                 <Header4 />
                 <div className="page-content">
-                    <Banner title={category} pagename={category} description={txt_content_banner_category} bgimage={bnrimg}/>
+                    <Banner title={category} pagename={category} description={txt_content_banner_category} bgimage={images.BgFour}/>
                    
                     <div className="section-full p-tb80 bg-white inner-page-padding">
                        
@@ -487,21 +483,21 @@ const BlogGrid = () => {
                                     <div className="masonry-item  col-lg-4 col-md-6 col-sm-12" key={index}>
                                     <div className="blog-post blog-grid date-style-2">
                                         <div className="sx-post-media sx-img-effect img-reflection">
-                                            <NavLink to={`/post-right-sidebar?id=${item.evento_id}&tipo=${TYPE.EVENTOS}`}><img src={`${process.env.REACT_APP_ROOT_API}/Eventos/${item.evento_imagen}`} alt="" /></NavLink>
+                                            <NavLink to={`/detalle?id=${item.evento_id}&tipo=${TIPOS.EVENTOS}`}><img style={{height: '400px'}} src={`${process.env.REACT_APP_ROOT_API}/Eventos/${item.evento_imagen}`} alt="" /></NavLink>
                                         </div>
                                         <div className="sx-post-info p-t30">
                                             <div className="sx-post-meta ">
                                                 <ul>
                                                     <li className="post-date"><strong>{obtenerDiaDeFecha2(item.evento_fecha)}</strong> <span>{obtenerMesDeFecha2(item.evento_fecha)}</span> </li>
-                                                    <li className="post-author"><NavLink to={`/post-right-sidebar?id=${item.evento_id}&tipo=${TYPE.EVENTOS}`}><span>{institucion_iniciales}</span></NavLink> </li>
-                                                    <li className="post-comment"> <NavLink to={`/post-right-sidebar?id=${item.evento_id}&tipo=${TYPE.EVENTOS}`}>{TYPE.EVENTOS}</NavLink> </li>
+                                                    <li className="post-author"><NavLink to={`/detalle?id=${item.evento_id}&tipo=${TIPOS.EVENTOS}`}><span>{institucion_iniciales}</span></NavLink> </li>
+                                                    <li className="post-comment"> <NavLink to={`/detalle?id=${item.evento_id}&tipo=${TIPOS.EVENTOS}`}>{TIPOS.EVENTOS}</NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
-                                                <h4 className="post-title"><NavLink to={`/post-right-sidebar?id=${item.evento_id}&tipo=${TYPE.EVENTOS}`}>{item.evento_titulo}</NavLink></h4>
+                                                <h4 className="post-title"><NavLink to={`/detalle?id=${item.evento_id}&tipo=${TIPOS.EVENTOS}`}>{item.evento_titulo}</NavLink></h4>
                                             </div>
                                             <div className="sx-post-readmore">
-                                                <NavLink to={`/post-right-sidebar?id=${item.evento_id}&tipo=${TYPE.EVENTOS}`} title="READ MORE" rel="bookmark" className="site-button-link">{txt_content_btn}</NavLink>
+                                                <NavLink to={`/detalle?id=${item.evento_id}&tipo=${TIPOS.EVENTOS}`} title="READ MORE" rel="bookmark" className="site-button-link">{txt_content_btn}</NavLink>
                                             </div>
                                         </div>
                                     </div>
@@ -524,8 +520,9 @@ const BlogGrid = () => {
         !loading_institucion &&
         !loading_static_data &&
         !loading_videos &&  
+        !loading_images &&
         !loading_static_data_key &&    
-        category === TYPE.VIDEOS
+        category === TIPOS.VIDEOS
     ){
 
     /* CLAVE PARA ENCRYPTACION */    
@@ -552,7 +549,7 @@ const BlogGrid = () => {
             <>
                 <Header4 />
                 <div className="page-content">
-                    <Banner title={category} pagename={category} description={txt_content_banner_category} bgimage={bnrimg}/>
+                    <Banner title={category} pagename={category} description={txt_content_banner_category} bgimage={images.BgFour}/>
                    
                     <div className="section-full p-tb80 bg-white inner-page-padding">
                        
@@ -562,10 +559,10 @@ const BlogGrid = () => {
                                     <div className="masonry-item  col-lg-4 col-md-6 col-sm-12" key={index}>
                                     <div className="blog-post blog-grid date-style-2">
                                         <div className="sx-post-media sx-img-effect img-reflection">
-                                            <NavLink to={`/post-right-sidebar?id=${item.video_id}&tipo=${TYPE.VIDEOS}`}>
+                                            <NavLink to={`/detalle?id=${item.video_id}&tipo=${TIPOS.VIDEOS}`}>
                                             <iframe
                                                 width="560" // Ancho deseado
-                                                height="315" // Alto deseado
+                                                height="400" // Alto deseado
                                                 src={item.video_enlace} // URL de embed del video
                                                 title="Video Embed"
                                                 frameBorder="0"
@@ -577,15 +574,15 @@ const BlogGrid = () => {
                                             <div className="sx-post-meta ">
                                                 <ul>
                                                     {/* <li className="post-date"><strong>{item.date}</strong> <span>{item.month}</span> </li> */}
-                                                    <li className="post-author"><NavLink to={`/post-right-sidebar?id=${item.video_id}&tipo=${TYPE.VIDEOS}`}><span>{institucion_iniciales}</span></NavLink> </li>
-                                                    <li className="post-comment"> <NavLink to={`/post-right-sidebar?id=${item.video_id}&tipo=${TYPE.VIDEOS}`}>{TYPE.VIDEOS}</NavLink> </li>
+                                                    <li className="post-author"><NavLink to={`/detalle?id=${item.video_id}&tipo=${TIPOS.VIDEOS}`}><span>{institucion_iniciales}</span></NavLink> </li>
+                                                    <li className="post-comment"> <NavLink to={`/detalle?id=${item.video_id}&tipo=${TIPOS.VIDEOS}`}>{TIPOS.VIDEOS}</NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
-                                                <h4 className="post-title"><NavLink to={`/post-right-sidebar?id=${item.video_id}&tipo=${TYPE.VIDEOS}`}>{item.video_titulo}</NavLink></h4>
+                                                <h4 className="post-title"><NavLink to={`/detalle?id=${item.video_id}&tipo=${TIPOS.VIDEOS}`}>{item.video_titulo}</NavLink></h4>
                                             </div>
                                             <div className="sx-post-readmore">
-                                                <NavLink to={`/post-right-sidebar?id=${item.video_id}&tipo=${TYPE.VIDEOS}`} title="READ MORE" rel="bookmark" className="site-button-link">{txt_content_btn}</NavLink>
+                                                <NavLink to={`/detalle?id=${item.video_id}&tipo=${TIPOS.VIDEOS}`} title="READ MORE" rel="bookmark" className="site-button-link">{txt_content_btn}</NavLink>
                                             </div>
                                         </div>
                                     </div>
@@ -616,11 +613,12 @@ const BlogGrid = () => {
     if(
         (!loading_institucion &&
         !loading_static_data &&
-        !loading_convocatorias 
+        !loading_convocatorias &&
+        !loading_images 
         ) &&
-        (category === TYPE.CONVOCATORIAS ||
-        category === TYPE.COMUNICADOS ||
-        category === TYPE.AVISOS
+        (category === TIPOS.CONVOCATORIAS ||
+        category === TIPOS.COMUNICADOS ||
+        category === TIPOS.AVISOS
         )
     ){
         
@@ -641,7 +639,7 @@ const BlogGrid = () => {
             <>
                 <Header4 />
                 <div className="page-content">
-                    <Banner title={category} pagename={category} description={txt_content_banner_category} bgimage={bnrimg}/>
+                    <Banner title={category} pagename={category} description={txt_content_banner_category} bgimage={images.BgFour}/>
                    
                     <div className="section-full p-tb80 bg-white inner-page-padding">
                        
@@ -651,21 +649,21 @@ const BlogGrid = () => {
                                     <div className="masonry-item  col-lg-4 col-md-6 col-sm-12" key={index}>
                                     <div className="blog-post blog-grid date-style-2">
                                         <div className="sx-post-media sx-img-effect img-reflection">
-                                            <NavLink to={`/post-right-sidebar?id=${item.idconvocatorias}&tipo=${category}`}><img src={`${process.env.REACT_APP_ROOT_API}/Convocatorias/${item.con_foto_portada}`} alt="" /></NavLink>
+                                            <NavLink to={`/detalle?id=${item.idconvocatorias}&tipo=${category}`}><img style={{height: '400px'}} src={`${process.env.REACT_APP_ROOT_API}/Convocatorias/${item.con_foto_portada}`} alt="" /></NavLink>
                                         </div>
                                         <div className="sx-post-info p-t30">
                                             <div className="sx-post-meta ">
                                                 <ul>
                                                     <li className="post-date"><strong>{obtenerDiaDeFecha(item.con_fecha_inicio)}</strong> <span>{obtenerMesDeFecha(item.con_fecha_inicio)}</span> </li>
-                                                    <li className="post-author"><NavLink to={`/post-right-sidebar?id=${item.idconvocatorias}&tipo=${category}`}><span>{item.tipo_conv_comun.tipo_conv_comun_titulo}</span></NavLink> </li>
-                                                    <li className="post-comment"> <NavLink to={`/post-right-sidebar?id=${item.idconvocatorias}&tipo=${category}`}>{ institucion_iniciales }</NavLink> </li>
+                                                    <li className="post-author"><NavLink to={`/detalle?id=${item.idconvocatorias}&tipo=${category}`}><span>{item.tipo_conv_comun.tipo_conv_comun_titulo}</span></NavLink> </li>
+                                                    <li className="post-comment"> <NavLink to={`/detalle?id=${item.idconvocatorias}&tipo=${category}`}>{ institucion_iniciales }</NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
-                                                <h4 className="post-title"><NavLink to={`/post-right-sidebar?id=${item.idconvocatorias}&tipo=${category}`}>{item.con_titulo}</NavLink></h4>
+                                                <h4 className="post-title"><NavLink to={`/detalle?id=${item.idconvocatorias}&tipo=${category}`}>{item.con_titulo}</NavLink></h4>
                                             </div>
                                             <div className="sx-post-readmore">
-                                                <NavLink to={`/post-right-sidebar?id=${item.idconvocatorias}&tipo=${category}`} title="READ MORE" rel="bookmark" className="site-button-link">{ txt_content_btn }</NavLink>
+                                                <NavLink to={`/detalle?id=${item.idconvocatorias}&tipo=${category}`} title="READ MORE" rel="bookmark" className="site-button-link">{ txt_content_btn }</NavLink>
                                             </div>
                                         </div>
                                     </div>
@@ -697,10 +695,11 @@ const BlogGrid = () => {
         (!loading_institucion &&
         !loading_static_data &&
         !loading_static_data_key &&
+        !loading_images &&
         !loading_cursos
         ) &&            
-        (category === TYPE.CURSOS ||
-        category === TYPE.SEMINARIOS
+        (category === TIPOS.CURSOS ||
+        category === TIPOS.SEMINARIOS
         )
     ){
 
@@ -721,7 +720,7 @@ const BlogGrid = () => {
             <>
                 <Header4 />
                 <div className="page-content">
-                    <Banner title={category} pagename={category} description={txt_content_banner_category} bgimage={bnrimg}/>
+                    <Banner title={category} pagename={category} description={txt_content_banner_category} bgimage={images.BgFour}/>
                    
                     <div className="section-full p-tb80 bg-white inner-page-padding">
                        
@@ -731,21 +730,21 @@ const BlogGrid = () => {
                                     <div className="masonry-item  col-lg-4 col-md-6 col-sm-12" key={index}>
                                     <div className="blog-post blog-grid date-style-2">
                                         <div className="sx-post-media sx-img-effect img-reflection">
-                                        <NavLink to={`/post-right-sidebar?id=${item.iddetalle_cursos_academicos}&tipo=${category}`}><img src={`${process.env.REACT_APP_ROOT_API}/Cursos/${item.det_img_portada}`} alt="" /></NavLink>
+                                        <NavLink to={`/detalle?id=${item.iddetalle_cursos_academicos}&tipo=${category}`}><img style={{height: '400px'}} src={`${process.env.REACT_APP_ROOT_API}/Cursos/${item.det_img_portada}`} alt="" /></NavLink>
                                         </div>
                                         <div className="sx-post-info p-t30">
                                             <div className="sx-post-meta ">
                                                 <ul>
                                                     <li className="post-date"><strong>{obtenerDiaDeFecha(item.det_fecha_ini)}</strong> <span>{obtenerMesDeFecha(item.det_fecha_ini)}</span> </li>
-                                                    <li className="post-author"><NavLink to={`/post-right-sidebar?id=${item.iddetalle_cursos_academicos}&tipo=${category}`}><span>{item.tipo_curso_otro.tipo_conv_curso_nombre}</span></NavLink> </li>
-                                                    <li className="post-comment"> <NavLink to={`/post-right-sidebar?id=${item.iddetalle_cursos_academicos}&tipo=${category}`}>{ institucion_iniciales }</NavLink> </li>
+                                                    <li className="post-author"><NavLink to={`/detalle?id=${item.iddetalle_cursos_academicos}&tipo=${category}`}><span>{item.tipo_curso_otro.tipo_conv_curso_nombre}</span></NavLink> </li>
+                                                    <li className="post-comment"> <NavLink to={`/detalle?id=${item.iddetalle_cursos_academicos}&tipo=${category}`}>{ institucion_iniciales }</NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
-                                                <h4 className="post-title"><NavLink to={`/post-right-sidebar?id=${item.iddetalle_cursos_academicos}&tipo=${category}`}>{item.det_titulo}</NavLink></h4>
+                                                <h4 className="post-title"><NavLink to={`/detalle?id=${item.iddetalle_cursos_academicos}&tipo=${category}`}>{item.det_titulo}</NavLink></h4>
                                             </div>
                                             <div className="sx-post-readmore">
-                                                <NavLink to={`/post-right-sidebar?id=${item.iddetalle_cursos_academicos}&tipo=${category}`} title="READ MORE" rel="bookmark" className="site-button-link">{txt_content_btn}</NavLink>
+                                                <NavLink to={`/detalle?id=${item.iddetalle_cursos_academicos}&tipo=${category}`} title="READ MORE" rel="bookmark" className="site-button-link">{txt_content_btn}</NavLink>
                                             </div>
                                         </div>
                                     </div>

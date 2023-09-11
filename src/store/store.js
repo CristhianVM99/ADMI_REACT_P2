@@ -31,12 +31,12 @@ export const dataCategoryDetail = {
 }
 
 export const dataContact = {
-    txt_content_contact : 'Contacto',
+    txt_content_contact : 'CONTACTO',
     txt_content_banner_contact: 'La UPEA es una universidad de excelencia, que forma profesionales competentes y comprometidos con el desarrollo de su país.',
 }
 
 export const dataAbout = {    
-    txt_content_about: 'Sobre Nosotros',
+    txt_content_about: 'SOBRE NOSOTROS',
     txt_content_banner_about : 'La UPEA es una universidad que trabaja por el desarrollo de Bolivia.',
 }
 
@@ -55,6 +55,13 @@ export const dataInstitucion = {
 
 export const dataKey = {
     CLAVE_ENCRYPTACION: 'UniversidadPublicaDeElAlto',
+}
+
+export const dataImagesStatic = {
+    BgOne : '/assets/images/bg.jpg',
+    BgTwo : '/assets/images/bg1.jpg',
+    BgThree : '/assets/images/bg2.png',
+    BgFour : '/assets/images/bg3.jpg',    
 }
 export const staticData = {
     // HEADER ========================
@@ -85,6 +92,9 @@ export const staticData = {
     dataInstitucion,
 
     // FOOTER 
-    txt_content_footer: 'La UPEA es una universidad inclusiva, que brinda oportunidades a todos los estudiantes, independientemente de su origen social o económico'
+    txt_content_footer: 'La UPEA es una universidad inclusiva, que brinda oportunidades a todos los estudiantes, independientemente de su origen social o económico',
     // Otros datos
+
+    // IMAGENES STATICAS
+    dataImagesStatic,
   };

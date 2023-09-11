@@ -90,3 +90,7 @@ export const getStaticDataAcademia = () => {
 export const getStaticDataInstitucion = () => {
     return staticData.dataInstitucion
 }
+
+export const getStaticImages = () => {
+    return staticData.dataImagesStatic
+}

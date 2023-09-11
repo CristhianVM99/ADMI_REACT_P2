@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { getInstitucion,getStaticData, getStaticDataIndex } from '../../api/institucionAPI';
+import { getInstitucion, getStaticDataIndex } from '../../api/institucionAPI';
 import { useQuery } from '@tanstack/react-query';
 
 const Team1 = () => {
@@ -17,43 +17,23 @@ const Team1 = () => {
         queryFn: getStaticDataIndex,
     });      
 
-  var bgimg1 = require("./../../images/background/cross-line2.png");
+    var bgimg1 = require("./../../images/background/cross-line2.png");
 
-  if(!loading_institucion && !loading_static_data){
-    const teamMembers = [
-        {
-          image: require("./../../images/our-team5/1.jpg"),
-          membername: "Johnny Jackman",
-          position: "Architect",
-        },
-        {
-          image: require("./../../images/our-team5/2.jpg"),
-          membername: "Daniel Rickman",
-          position: "Architect",
-        },
-        {
-          image: require("./../../images/our-team5/3.jpg"),
-          membername: "Mark Norwich",
-          position: "Finances",
-        },
-        {
-          image: require("./../../images/our-team5/4.jpg"),
-          membername: "Nich Jonas",
-          position: "Finances",
-        },
-      ];
+    if(!loading_institucion && !loading_static_data){    
 
+      /* INFORMACION DE LA INSTITUCION */
       const {
         autoridad
       } = institucion;
 
+      /* INFORMACION ESTATICA */
       const {
         txt_content_autoridades,
       }= staticData
 
     return (
         <>
-          <div className="section-full p-t80 p-b50 mobile-page-padding">
+          {autoridad ? (<div className="section-full p-t80 p-b50 mobile-page-padding">
             <div className="container">
               {/* TITLE START */}
               <div className="section-head">
@@ -71,19 +51,19 @@ const Team1 = () => {
               <div className="section-content">
                 <div className="row team-item-four">
                   {autoridad.map((item, index) => (
-                    <div className="col-lg-3 col-md-6 col-sm-6 m-b30" key={index}>
+                    <div className="col-lg-4 col-md-6 col-sm-6 m-b30" key={index}>
                       <div className="our-team-2 ">
                         <div className="profile-image">
-                          <img src={`${process.env.REACT_APP_ROOT_API}/InstitucionUpea/Autoridad/${item.foto_autoridad}`} alt="" />
+                          <img src={`${process.env.REACT_APP_ROOT_API}/InstitucionUpea/Autoridad/${item.foto_autoridad}`} alt="" style={{height: '400px', objectFit: 'cover'}}/>
                           <div className="icons">
-                            <a href={item.facebook_autoridad} target="_blank">
+                            <a href={item.facebook_autoridad} target="_blank" rel="noopener noreferrer">
                               <i className="fa fa-facebook" />
                             </a>
-                            <a href={item.twiter_autoridad} target="_blank">
+                            <a href={item.twiter_autoridad} target="_blank" rel="noopener noreferrer">
                               {" "}
                               <i className="fa fa-twitter" />
                             </a>
-                            <a href={item.celular_autoridad} target="_blank">
+                            <a href={item.celular_autoridad} target="_blank" rel="noopener noreferrer">
                               {" "}
                               <i className="fa fa-whatsapp" />
                             </a>                            
@@ -91,7 +71,7 @@ const Team1 = () => {
                         </div>
                         <div className="figcaption text-black">
                           <h4 className="m-t0">
-                            <NavLink to={"/team-single"}>{item.nombre_autoridad}</NavLink>
+                            <NavLink to={"#"}>{item.nombre_autoridad}</NavLink>
                           </h4>
                           <span className="m-b0">{item.cargo_autoridad}</span>
                         </div>
@@ -101,11 +81,18 @@ const Team1 = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </div>): <div>Sin Registros</div>}
         </>
       );
   }
   return null
 };
+
+/* =============================================================================
+/
+/    WEB DEVELOPER => CRISTHIAN VILLCA MAMANI
+/    LINKEDIN => https://www.linkedin.com/in/cristhian-villca-mamani-06933b251/
+/
+================================================================================ */ 
 
 export default Team1;

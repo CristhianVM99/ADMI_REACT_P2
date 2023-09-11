@@ -7,7 +7,7 @@ import WhatWeDo3 from './../Elements/WhatWeDo3';
 import Statistics1 from './../Elements/Statistics1';
 import Team1 from './../Elements/Team1';
 import ClientsLogo1 from './../Elements/ClientsLogo1';
-import { getStaticDataAbout } from '../../api/institucionAPI';
+import { getStaticDataAbout, getStaticImages } from '../../api/institucionAPI';
 import { useQuery } from '@tanstack/react-query';
 
 var bnrimg = require('./../../images/banner/6.jpg');
@@ -18,6 +18,12 @@ const Home4 = () => {
     const { isLoading: loading_static_data, data: staticData } = useQuery({
         queryKey: ['staticDataAbout'],
         queryFn: getStaticDataAbout,
+    });
+
+    /* OBTENCION DE INFORMACION DEL STORE IMAGES */
+    const { isLoading: loading_images, data: images } = useQuery({
+        queryKey: ['getStaticImages'],
+        queryFn: getStaticImages,
     });
 
     useEffect(()=>{
@@ -50,7 +56,7 @@ const Home4 = () => {
             <>
                 <Header4 />
                 <div className="page-content">
-                    <Banner title={txt_content_about} pagename={txt_content_about} description={txt_content_banner_about} bgimage={bnrimg}/>
+                    <Banner title={txt_content_about} pagename={txt_content_about} description={txt_content_banner_about} bgimage={images.BgThree}/>
                     <About3 bgcolor="bg-gray" />
                     {/* <WhatWeDo3 />
                     <Statistics1 /> */}

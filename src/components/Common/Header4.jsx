@@ -5,7 +5,6 @@ import { getInstitucion,getStaticData } from '../../api/institucionAPI';
 import { useQuery } from '@tanstack/react-query';
 
 function Header4(props) {
-    const [logo, setLogo] = useState(require('./../../images/logo-light.png'));
     const [isSearchActive, setIsSearchActive] = useState(false);
 
     const handleSearchToggle = () => {
@@ -37,11 +36,7 @@ function Header4(props) {
     }
 };
 
-        window.addEventListener('scroll', handleScroll);
-
-        window.updateTopMostParent = (logopath) => {
-            setLogo(logopath);
-        };
+        window.addEventListener('scroll', handleScroll);        
 
         // Limpia el event listener cuando el componente se desmonta
         return () => {
@@ -51,6 +46,7 @@ function Header4(props) {
 
     if(!loading_institucion && !loading_static_data){
 
+        /* DAT0S DE LA INSTITUCION */
         const {
             institucion_correo1,
             institucion_celular1,
@@ -75,16 +71,7 @@ function Header4(props) {
                                 <span className="icon-bar icon-bar-first" />
                                 <span className="icon-bar icon-bar-two" />
                                 <span className="icon-bar icon-bar-three" />
-                            </button>
-                            {/* EXTRA NAV */}
-                            <div className="extra-nav">
-                                <div className="extra-cell">
-                                    <NavLink to={"#"} onClick={handleSearchToggle}>
-                                        <i className="fa fa-search" />
-                                    </NavLink>
-                                </div>
-                            </div>
-                            {/* EXTRA Nav */}
+                            </button>                            
                             {/* MAIN NAVIGATION */}
                             <div className="header-nav nav-dark navbar-collapse collapse justify-content-center collapse">
                                 <Navigation ></Navigation>
@@ -108,6 +95,12 @@ function Header4(props) {
     return null
 }
 
+/* =============================================================================
+/
+/    WEB DEVELOPER => CRISTHIAN VILLCA MAMANI
+/    LINKEDIN => https://www.linkedin.com/in/cristhian-villca-mamani-06933b251/
+/
+================================================================================ */ 
 export default Header4;
 
 

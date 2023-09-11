@@ -71,7 +71,7 @@ const Components = () => {
                         <Route path='/home-6' element={<Home6/>} />
 
                         <Route path='/academia' element={<About1/>} />
-                        <Route path='/about-2' element={<About2/>} />
+                        <Route path='/sobreNosotros' element={<About2/>} />
 
                         <Route path='/services-1' element={<Services1/>} />
                         <Route path='/services-2' element={<Services2/>} />
@@ -103,11 +103,11 @@ const Components = () => {
                         <Route path='/project-detail1' element={<ProjectDetail1/>} />
                         <Route path='/project-detail2' element={<ProjectDetail2/>} />
 
-                        <Route path='/blog-grid' element={<BlogGrid/>} />
+                        <Route path='/recursos' element={<BlogGrid/>} />
                         <Route path='/blog-listing' element={<BlogListing/>} />
                         <Route path='/blog-masonry' element={<BlogMasonary/>} />
                         <Route path='/blog-single' element={<BlogSingle/>} />
-                        <Route path='/post-right-sidebar' element={<PostRightSidebar/>} />
+                        <Route path='/detalle' element={<PostRightSidebar/>} />
 
                         <Route path='/shop-grid' element={<ShopGrid/>} />
                         <Route path='/shop-list' element={<ShopList/>} />
@@ -117,7 +117,7 @@ const Components = () => {
                         <Route path='/shop-checkout' element={<ShopCheckout/>} />
 
                         <Route path='/faq' element={<Faq/>} />
-                        <Route path='/contact-us' element={<ContactUs/>} />
+                        <Route path='/contacto' element={<ContactUs/>} />
                         
                         <Route element={<Error/>} />
                     </Routes>
@@ -125,5 +125,12 @@ const Components = () => {
         </BrowserRouter>
     );
 };
+
+/* =============================================================================
+/
+/    WEB DEVELOPER => CRISTHIAN VILLCA MAMANI
+/    LINKEDIN => https://www.linkedin.com/in/cristhian-villca-mamani-06933b251/
+/
+================================================================================ */ 
 
 export default Components;

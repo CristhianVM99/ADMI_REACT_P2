@@ -1,19 +1,15 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
 import { getLinksInstExtAll, getStaticDataIndex } from '../../api/institucionAPI';
 import { useQuery } from '@tanstack/react-query';
+import { TIPOS } from '../../types/types';
 
 const ClientsLogo1 = () =>{
 
+    /* OBTENCION DE INFORMACON DE LINKS EXTERNOS */
     const { isLoading: loading_links_externos, data: links } = useQuery({
         queryKey: ['links_externos'],
         queryFn: getLinksInstExtAll,
-    })
-
-    const TIPO_LINK = {
-        KARDEX : 'KARDEX'
-    }
-
+    })    
 
     /* OBTENCION DE INFORMACION DEL STORE STATICO */
     const { isLoading: loading_static_data, data: staticData } = useQuery({
@@ -30,11 +26,11 @@ const ClientsLogo1 = () =>{
             txt_content_links_btn,
         } = staticData
 
-        const links_filter = links.filter((e)=>e.ei_tipo===TIPO_LINK.KARDEX)
+        const links_filter = links.filter((e)=>e.ei_tipo===TIPOS.KARDEX)
 
         return (
             <>
-                <div className="section-full  mobile-page-padding bg-gray  p-t80 p-b10 bg-repeat" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
+                <div className="section-full mobile-page-padding bg-gray  p-t80 p-b10 bg-repeat" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
                     <div className="container">
                         {/* TITLE START */}
                         <div className="section-head">
@@ -50,12 +46,12 @@ const ClientsLogo1 = () =>{
                                 <div className="row justify-content-center">
                                     {links_filter.map((item, index) => (
                                         <div className="col-lg-3 col-md-4 col-sm-6 col-6 m-b30" key={index}>
-                                            <NavLink to={"/about-1"} className="client-logo-pic">
-                                                <img src={`${process.env.REACT_APP_ROOT_API}/InstitucionUpea/LinksExternos/${item.ei_imagen}`} alt=""/>
+                                            <a href={item.ei_link} target='_blank' rel="noopener noreferrer" className="client-logo-pic">
+                                                <img src={`${process.env.REACT_APP_ROOT_API}/InstitucionUpea/LinksExternos/${item.ei_imagen}`} alt={item.ei_nombre} style={{height: '150px', objectFit: 'contain'}}/>
                                                 <div>
                                                     <span>{txt_content_links_btn}</span>
                                                 </div>
-                                            </NavLink>
+                                            </a>
                                         </div>
                                     ))}
                                 </div>
@@ -63,13 +59,21 @@ const ClientsLogo1 = () =>{
                         </div>
                     </div>
                     <div className="hilite-title text-left p-l50 text-uppercase">
-                        <strong>Links</strong>
+                        <strong>Enlaces</strong>
                     </div>
                 </div>
             </>
         );
     }    
-    return null
+        return null
     }
+
+    
+/* =============================================================================
+/
+/    WEB DEVELOPER => CRISTHIAN VILLCA MAMANI
+/    LINKEDIN => https://www.linkedin.com/in/cristhian-villca-mamani-06933b251/
+/
+================================================================================ */ 
 
 export default ClientsLogo1;

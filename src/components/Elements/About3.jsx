@@ -1,12 +1,16 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import ReactPlayer from 'react-player';
-import { getInstitucion, getStaticDataAbout } from '../../api/institucionAPI';
+import { getInstitucion, getStaticDataAbout, getStaticImages } from '../../api/institucionAPI';
 import { useQuery } from '@tanstack/react-query';
 
-var bgimg1 = require('./../../images/video-bg.jpg');
-
 const About3 = (bgcolor) =>{
+
+    /* OBTENCION DE INFORMACION DEL STORE IMAGES */
+    const { isLoading: loading_images, data: images } = useQuery({
+        queryKey: ['getStaticImages'],
+        queryFn: getStaticImages,
+    });
 
     /* OBTENCION DE INFORMACION DEL STORE API */
     const { isLoading: loading_institucion, data: institucion } = useQuery({
@@ -22,18 +26,10 @@ const About3 = (bgcolor) =>{
 
     if(!loading_institucion && !loading_static_data){
 
-        const {            
-            institucion_celular1,
-            institucion_celular2,
-            institucion_telefono1,
-            institucion_telefono2,
-            institucion_correo1,
-            institucion_correo2,
-            institucion_direccion,
+        const {                        
             institucion_mision,
             institucion_vision,
             institucion_objetivos,
-            institucion_sobre_ins,
             institucion_historia,
             institucion_nombre,
             institucion_link_video_vision,
@@ -113,7 +109,7 @@ const About3 = (bgcolor) =>{
                                 </div>
                                 <div className="col-xl-6 col-lg-6 col-md-12">
                                     <div className="video-section-full-v2">
-                                        <div className="video-section-full bg-no-repeat bg-cover bg-center overlay-wraper m-b30" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
+                                        <div className="video-section-full bg-no-repeat bg-cover bg-center overlay-wraper m-b30" style={{ backgroundImage: 'url(' + images.BgOne + ')' }}>
                                             <div className="overlay-main bg-black opacity-04" />
                                             <div className="video-section-inner">
                                                 <div className="video-section-content">

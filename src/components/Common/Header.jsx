@@ -8,15 +8,19 @@ import bnr from './../../images/background/bg-map.png';
 import logo1 from './../../images/logo-1.png';
 
 const Header = () => {
+    
+    /* OBTENCION DE INFORMACION DEL STORE API */
     const { isLoading: loading_institucion, data: institucion } = useQuery({
         queryKey: ['institucion'],
         queryFn: getInstitucion,
     })
+
+    /* OBTENCION DE INFORMACION DEL STORE STATICO */
     const { isLoading: loading_static_data, data: staticData } = useQuery({
         queryKey: ['staticData'],
         queryFn: getStaticData,
     });
-    const [logo, setLogo] = useState(logo1);
+    
     const [isSearchActive, setSearchActive] = useState(false);
     const [isQuoteActive, setQuoteActive] = useState(false);
 
@@ -44,11 +48,7 @@ const Header = () => {
           }
         };
       
-        window.addEventListener('scroll', handleScroll);
-      
-        window.updateTopMostParent = (logopath) => {
-          setLogo(logopath);
-        };
+        window.addEventListener('scroll', handleScroll);              
       
         return () => {
           window.removeEventListener('scroll', handleScroll);
@@ -56,11 +56,18 @@ const Header = () => {
       }, []);      
 
         if(!loading_institucion && !loading_static_data){
+            /* DATOS DE LA INSTITUCION */
             const {
                 institucion_correo1,
                 institucion_celular1,
                 institucion_logo,
+                institucion_direccion,
+                institucion_facebook,
+                institucion_youtube,
+                institucion_twitter,
             } = institucion
+            
+            /* COMPONENTE */
             return (
                 <>
                     <header className="site-header header-style-1 nav-wide mobile-sider-drawer-menu">
@@ -79,7 +86,7 @@ const Header = () => {
                                 <div className="container clearfix">
                                     <div className="logo-header">
                                         <div className="logo-header-inner logo-header-one">
-                                            <NavLink to={"./"} style={{display: 'flex', justifyContent: 'center', alignItems:'center'}}>
+                                            <NavLink to={"/"} style={{display: 'flex', justifyContent: 'center', alignItems:'center'}}>
                                                 <img width={70} src={`${process.env.REACT_APP_ROOT_API}/InstitucionUpea/${institucion_logo}`} alt="Inteshape" />
                                             </NavLink>
                                         </div>
@@ -92,17 +99,11 @@ const Header = () => {
                                         <span className="icon-bar icon-bar-three" />
                                     </button>
                                     {/* EXTRA NAV */}
-                                    <div className="extra-nav">
+                                    <div className="extra-nav">                                        
                                         <div className="extra-cell">
-                                            {/* <NavLink to={"#"} onClick={handleSearchToggle}>
-                                                <i className="fa fa-search" />
-                                            </NavLink> */}
-                                        </div>
-                                        <div className="extra-cell">
-    
                                             <div className="contact-slide-show">
                                                 {/* _______onClick={handleQuoteToggle} */}
-                                                <a href={process.env.REACT_APP_ADMIN_API} target='_blank' className="get-in-touch-btn from-top" 
+                                                <a href={process.env.REACT_APP_ADMIN_API} target='_blank' rel="noopener noreferrer" className="get-in-touch-btn from-top" 
                                                 >{staticData.btn_content_admin}</a>
                                             </div>
                                         </div>
@@ -123,67 +124,33 @@ const Header = () => {
                                                             <div className="sx-icon-box-wraper left p-b30">
                                                                 <div className="icon-xs inline-icon m-b20 scale-in-center"><i className="fa fa-phone" /></div>
                                                                 <div className="icon-content">
-                                                                    <h6 className="m-t0">Phone number</h6>
-                                                                    <p>(075) 123-7654</p>
+                                                                    <h6 className="m-t0">Celular</h6>
+                                                                    <p>(+591) {institucion_celular1}</p>
                                                                 </div>
                                                             </div>
                                                             <div className="sx-icon-box-wraper left p-b30">
                                                                 <div className="icon-xs inline-icon m-b20 scale-in-center"><i className="fa fa-envelope" /></div>
                                                                 <div className="icon-content">
-                                                                    <h6 className="m-t0">Email address</h6>
-                                                                    <p>7xthemehelp@gmail.com</p>
+                                                                    <h6 className="m-t0">Correo</h6>
+                                                                    <p>{institucion_correo1}</p>
                                                                 </div>
                                                             </div>
                                                             <div className="sx-icon-box-wraper left p-b30">
                                                                 <div className="icon-xs inline-icon m-b20 scale-in-center"><i className="fa fa-map-marker" /></div>
                                                                 <div className="icon-content">
-                                                                    <h6 className="m-t0">Address info</h6>
-                                                                    <p>201 Liverpool Street, Suite 721, London</p>
+                                                                    <h6 className="m-t0">Dirección</h6>
+                                                                    <p>{institucion_direccion}</p>
                                                                 </div>
                                                             </div>
                                                             <div className="full-social-bg">
                                                                 <ul>
-                                                                    <li><a href="https://www.facebook.com" target="_blank"><i className="fa fa-facebook" /></a></li>
-                                                                    <li><a href="https://www.instagram.com" target="_blank"><i className="fa fa-instagram" /></a></li>
-                                                                    <li><a href="https://twitter.com" target="_blank"><i className="fa fa-twitter" /></a></li>
-                                                                    <li><a href="https://www.google.com" target="_blank"><i className="fa fa-google" /></a></li>
-                                                                    <li><a href="https://www.tumblr.com" target="_blank" className="tumblr"><i className="fa fa-tumblr" /></a></li>
-                                                                    <li><a href="https://www.youtube.com" target="_blank" className="youtube"><i className="fa fa-youtube" /></a></li>
+                                                                    <li><a href={institucion_facebook} target="_blank" rel="noopener noreferrer"><i className="fa fa-facebook" /></a></li>                                                                    
+                                                                    <li><a href={institucion_twitter} target="_blank" rel="noopener noreferrer"><i className="fa fa-twitter" /></a></li>                                                                    
+                                                                    <li><a href={institucion_youtube} target="_blank" rel="noopener noreferrer" className="youtube"><i className="fa fa-youtube" /></a></li>
                                                                 </ul>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                    <div className="col-xl-6 col-lg-6 col-md-12 ">
-                                                        <div className="contact-nav-field shadow-lg p-a30 bg-white" style={{ backgroundImage: "url(" + bnr + ")" }}>
-                                                            <form className="cons-contact-form2 form-transparent" method="post" action="#">
-                                                                <div className="input input-animate">
-                                                                    <label htmlFor="name">Name</label>
-                                                                    <input defaultValue="" type="text" name="username" id="name" required />
-                                                                    <span className="spin" />
-                                                                </div>
-                                                                <div className="input input-animate">
-                                                                    <label htmlFor="email">Email</label>
-                                                                    <input type="email" defaultValue="" name="email" id="email" required />
-                                                                    <span className="spin" />
-                                                                </div>
-                                                                <div className="input input-animate">
-                                                                    <label htmlFor="Phone">Phone</label>
-                                                                    <input type="text" name="phone" defaultValue="" id="Phone" required />
-                                                                    <span className="spin" />
-                                                                </div>
-                                                                <div className="input input-animate">
-                                                                    <label htmlFor="message">Textarea</label>
-                                                                    <textarea name="message" id="message" required defaultValue={""} />
-                                                                    <span className="spin" />
-                                                                </div>
-                                                                <div className="text-left p-t10">
-                                                                    <button type="button" className="site-button-secondry btn-half ">
-                                                                        <span>  Submit Now</span>
-                                                                    </button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
+                                                    </div>                                                    
                                                 </div>
                                             </div>
                                         </div>
@@ -207,5 +174,11 @@ const Header = () => {
         }   
 };
 
+/* =============================================================================
+/
+/    WEB DEVELOPER => CRISTHIAN VILLCA MAMANI
+/    LINKEDIN => https://www.linkedin.com/in/cristhian-villca-mamani-06933b251/
+/
+================================================================================ */ 
 export default Header;
 

@@ -3,10 +3,17 @@ import Header4 from './../Common/Header4';
 import Footer from './../Common/Footer';
 import Banner from './../Elements/Banner';
 import GoogleMapReact from 'google-map-react';
-import { getInstitucion, getStaticDataContact } from '../../api/institucionAPI';
+import { getInstitucion, getStaticDataContact, getStaticImages } from '../../api/institucionAPI';
 import { useQuery } from '@tanstack/react-query';
 
 const ContactUs = () => {
+
+
+    /* OBTENCION DE INFORMACION DEL STORE IMAGES */
+    const { isLoading: loading_images, data: images } = useQuery({
+        queryKey: ['getStaticImages'],
+        queryFn: getStaticImages,
+    });
 
     /* OBTENCION DE INFORMACION DEL STORE API */
     const { isLoading: loading_institucion, data: institucion } = useQuery({
@@ -20,8 +27,6 @@ const ContactUs = () => {
         queryFn: getStaticDataContact,
     });
 
-    var bnrimg = require('./../../images/banner/9.jpg');
-
     const AnyReactComponent = ({ text }) => <div>{text}</div>;
 
     const defaultProps = {
@@ -31,7 +36,7 @@ const ContactUs = () => {
         },
         zoom: 12
     }
-    if(!loading_institucion && !loading_static_data){
+    if(!loading_institucion && !loading_static_data && !loading_images){
         
         const {            
             institucion_celular1,
@@ -40,7 +45,9 @@ const ContactUs = () => {
             institucion_telefono2,
             institucion_correo1,
             institucion_correo2,
-            institucion_direccion,            
+            institucion_direccion,    
+            institucion_api_google_map,
+            institucion_iniciales        
         } = institucion
 
         const {
@@ -52,7 +59,7 @@ const ContactUs = () => {
             <>
                 <Header4 />
                 <div className="page-content">
-                    <Banner title={txt_content_contact} pagename={txt_content_contact} description={txt_content_banner_contact} bgimage={bnrimg}/>
+                    <Banner title={txt_content_contact} pagename={txt_content_contact} description={txt_content_banner_contact} bgimage={images.BgFour}/>
                     {/* SECTION CONTENTG START */}
                     <div className="section-full p-tb80 inner-page-padding">
                         {/* LOCATION BLOCK*/}
@@ -68,10 +75,11 @@ const ContactUs = () => {
                                                 <div className="section-head">
                                                     <div className="sx-separator-outer separator-left">
                                                         <div className="sx-separator bg-white bg-moving bg-repeat-x" style={{ backgroundImage: 'url(images/background/cross-line2.png)' }}>
-                                                            <h3 className="sep-line-one">Form</h3>
+                                                            <h3 className="sep-line-one">{institucion_iniciales}</h3>
                                                         </div>
                                                     </div>
-                                                </div>                                               
+                                                </div>   
+                                                <img src={images.BgOne} alt=""/>                                            
                                             </div>
                                         </form>
                                     </div>
@@ -120,13 +128,12 @@ const ContactUs = () => {
                         </div>
                     </div>
                     <div className="gmap-outline">
-                        <GoogleMapReact
-                            bootstrapURLKeys={{ key: "AIzaSyAfY1DRbspf6E3jYUso-PeI_tdfRXA59i0" }}
-                            defaultCenter={defaultProps.center}
-                            defaultZoom={defaultProps.zoom}
-                            >
-                            <AnyReactComponent lat={34.073280} lng={-118.251410} text={<i className="fa fa-map-marker" />}                                        />
-                        </GoogleMapReact>                        
+                    <iframe
+                        src={institucion_api_google_map}
+                        width="100%"
+                        height="400px"
+                        loading="lazy"
+                    ></iframe>                         
                     </div>
                     {/* SECTION CONTENT END */}
                 </div>

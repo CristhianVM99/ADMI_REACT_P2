@@ -1,10 +1,8 @@
 import React, { useEffect } from 'react';
 import { Document, Page, pdfjs } from "react-pdf";
-
-import { getGacetas, getInstitucion, getStaticDataAcademia } from '../../api/institucionAPI';
+import { getGacetas, getInstitucion, getStaticDataAcademia, getStaticImages } from '../../api/institucionAPI';
 import { useQuery } from '@tanstack/react-query';
-
-var bgimg1 = require('./../../images/background/bg5.jpg');
+import { TIPOS } from '../../types/types';
 
 const About2 = ({tipo}) => {
 
@@ -30,8 +28,15 @@ const About2 = ({tipo}) => {
         queryFn: getStaticDataAcademia,
     });
 
-    if(!loading_institucion && !loading_gacetas && !loading_static_data && tipo !== 'REGLAMENTO'){
+    /* OBTENCION DE INFORMACION DEL STORE IMAGES */
+    const { isLoading: loading_images, data: images } = useQuery({
+        queryKey: ['getStaticImages'],
+        queryFn: getStaticImages,
+    });
 
+    if(!loading_institucion && !loading_gacetas && !loading_static_data && tipo !== TIPOS.REGLAMENTO){
+
+        /* DATOS ESTATICOS */
         const {
             txt_content_btn,
             txt_content_calendario,
@@ -42,60 +47,62 @@ const About2 = ({tipo}) => {
         var item = null
         var content = ''
 
-        if(tipo === "CALENDARIO"){
+        if(tipo === TIPOS.CALENDARIO){
             /* OBTENEMOS EL CALENDARIO DE LA INSTITUCION */            
-            item = gacetas.find((e) => e.gaceta_titulo.includes('CALENDARIO'))  
+            item = gacetas.find((e) => e.gaceta_titulo.includes(TIPOS.CALENDARIO))  
             content = txt_content_calendario                       
         }
-        if(tipo === "HORARIO"){
+        if(tipo === TIPOS.HORARIO){
             /* OBTENEMOS EL CALENDARIO DE LA INSTITUCION */            
-            item = gacetas.find((e) => e.gaceta_titulo.includes('HORARIO'))                         
+            item = gacetas.find((e) => e.gaceta_titulo.includes(TIPOS.CALENDARIO))                         
             content = txt_content_horario
         }
-        if(tipo === "PLANESTUDIO"){
+        if(tipo === TIPOS.PLANESTUDIO){
             /* OBTENEMOS EL CALENDARIO DE LA INSTITUCION */            
-            item = gacetas.find((e) => e.gaceta_titulo.includes('PLAN'))                         
+            item = gacetas.find((e) => e.gaceta_titulo.includes(TIPOS.PLAN))                         
             content = txt_content_plan_de_estudio
         }        
 
         return (
             <>
-                <div className="section-full mobile-page-padding p-t80 p-b80 bg-gray">
-                        <div className="container">
-                            <div className="section-content">
-                                <div className="row">
-                                    <div className="col-xl-5 col-lg-5 col-md-12 ">
-                                    <Document file={`${process.env.REACT_APP_ROOT_API}/Gaceta/${item.gaceta_documento}`}>
-                                        <Page pageNumber={1} width={400}/>
-                                    </Document>
-                                    </div>
-                                    <div className="col-xl-7 col-lg-7 col-md-12">
-                                        <div className="about-home-2">
-                                            <h3 className="m-t0 sx-tilte">{item.gaceta_titulo}</h3>
-                                            <p>{content}</p>
-                                            <div className="text-left">
-                                            <a href={`${process.env.REACT_APP_ROOT_API}/Gaceta/${item.gaceta_documento}`} target='_blank' className="site-button-link">{txt_content_btn}</a>
-                                            </div>
+                {item ? (<div className="section-full mobile-page-padding p-t80 p-b80 bg-gray">
+                    <div className="container">
+                        <div className="section-content">
+                            <div className="row">
+                                <div className="col-xl-5 col-lg-5 col-md-12 ">
+                                <Document file={`${process.env.REACT_APP_ROOT_API}/Gaceta/${item.gaceta_documento}`}>
+                                    <Page pageNumber={1} width={400}/>
+                                </Document>
+                                </div>
+                                <div className="col-xl-7 col-lg-7 col-md-12">
+                                    <div className="about-home-2">
+                                        <h3 className="m-t0 sx-tilte">{item.gaceta_titulo}</h3>
+                                        <p>{content}</p>
+                                        <div className="text-left">
+                                        <a href={`${process.env.REACT_APP_ROOT_API}/Gaceta/${item.gaceta_documento}`} target='_blank' rel="noopener noreferrer" className="site-button-link">{txt_content_btn}</a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>): <div>Sin Registros</div>}
             </>
         );
     }
 
-    if(!loading_institucion && !loading_static_data && tipo === 'REGLAMENTO'){
+    if(!loading_institucion && !loading_static_data && tipo === TIPOS.REGLAMENTO){
         
-        /* DATOS OBTENIDOS DESDE LA STORE STATICA*/
+        /* DATOS DE LA INSTITUCION */
         const {
             institucion_sobre_ins
         } = institucion
 
+        /* DATOS ESTATICOS */
         const {          
             txt_content_reglamento,
         } = staticData   
+
         return (
             <>
                 <div className="section-full mobile-page-padding p-t80 p-b80 bg-gray">
@@ -103,7 +110,7 @@ const About2 = ({tipo}) => {
                             <div className="section-content">
                                 <div className="row">
                                 <div className="col-xl-5 col-lg-5 col-md-12 ">
-                                        <div className="home-2-about bg-bottom-left bg-no-repeat bg-cover" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
+                                        <div className="home-2-about bg-bottom-left bg-no-repeat bg-cover" style={{ backgroundImage: 'url(' + images.BgThree + ')' }}>
                                         </div>
                                     </div>
                                     <div className="col-xl-7 col-lg-7 col-md-12">
@@ -122,4 +129,10 @@ const About2 = ({tipo}) => {
     return null
 };
 
+/* =============================================================================
+/
+/    WEB DEVELOPER => CRISTHIAN VILLCA MAMANI
+/    LINKEDIN => https://www.linkedin.com/in/cristhian-villca-mamani-06933b251/
+/
+================================================================================ */ 
 export default About2;

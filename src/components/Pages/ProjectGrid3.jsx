@@ -4,8 +4,9 @@ import Header4 from './../Common/Header4';
 import Footer from './../Common/Footer';
 import Banner from './../Elements/Banner';
 import { Document, Page, pdfjs } from "react-pdf";
-import { getGacetas, getInstitucion, getStaticDataInstitucion } from '../../api/institucionAPI';
+import { getGacetas, getInstitucion, getStaticDataInstitucion, getStaticImages } from '../../api/institucionAPI';
 import { useQuery } from '@tanstack/react-query';
+import { TIPOS } from '../../types/types';
 
 const ProjectGrid3 = () => {
 
@@ -13,6 +14,12 @@ const ProjectGrid3 = () => {
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const category = searchParams.get('tipo').toUpperCase();
+
+    /* OBTENCION DE INFORMACION DEL STORE IMAGES */
+    const { isLoading: loading_images, data: images } = useQuery({
+        queryKey: ['getStaticImages'],
+        queryFn: getStaticImages,
+    });
 
     /* OBTENCION DE INFORMACION DEL STORE STATICO CATEGORY */
     const { isLoading: loading_static_data, data: staticData } = useQuery({
@@ -32,14 +39,12 @@ const ProjectGrid3 = () => {
         queryFn: getGacetas,
     })
 
+    /* CATEGORIA PARA FILTRADOS */
     const filters = [
-        { label: "CONVENIOS", filter: ".CONVENIOS" },
-        { label: "PASANTIAS", filter: ".PASANTIAS" },
-        { label: "TRABAJOS", filter: ".TRABAJOS" },
-    ];        
-    
-    var bnrimg = require('./../../images/banner/3.jpg');
-    var bgimg1 = require('./../../images/background/cross-line.png');    
+        { label: TIPOS.CONVENIOS, filter: "."+TIPOS.CONVENIOS },
+        { label: TIPOS.PASANTIAS, filter: "."+TIPOS.PASANTIAS },
+        { label: TIPOS.TRABAJOS, filter: "."+TIPOS.TRABAJOS },
+    ];            
 
     useEffect(()=>{
 
@@ -64,7 +69,7 @@ const ProjectGrid3 = () => {
         loadScript('./assets/js/custom.js');
     })
 
-    if(!loading_institucion && !loading_static_data && !loading_gacetas){
+    if(!loading_institucion && !loading_static_data && !loading_gacetas && !loading_images){
 
         /* DATOS OBTENIDOS DESDE LA STORE API */
         const {
@@ -77,51 +82,54 @@ const ProjectGrid3 = () => {
             institucion_nombre
         } = institucion
 
-        const filterconvenios = gacetas.filter((e)=> e.gaceta_titulo.includes("CONVENIO"))
+        /* FILTRADOE DE CONVENIOS PARA GACETAS DE TIPO CONVENIO */
+        const filterconvenios = gacetas.filter((e)=> e.gaceta_titulo.includes(TIPOS.CONVENIO))
 
         const convenios = filterconvenios.map((item) => {
             // Copiar el objeto existente y agregar el nuevo campo
             return {
               ...item, // Copiar el objeto existente
-              filter: 'CONVENIOS'
+              filter: TIPOS.CONVENIOS
             };
         });
 
-
-        const filterpasantias = gacetas.filter((e)=> e.gaceta_titulo.includes("PASANTIA"))
+        /* FILTRADOE DE CONVENIOS PARA GACETAS DE TIPO PASANTIA */
+        const filterpasantias = gacetas.filter((e)=> e.gaceta_titulo.includes(TIPOS.PASANTIA))
 
         const pasantias = filterpasantias.map((item) => {
             // Copiar el objeto existente y agregar el nuevo campo
             return {
               ...item, // Copiar el objeto existente
-              filter: 'PASANTIAS'
+              filter: TIPOS.PASANTIAS
             };
         });
 
-        const filtertrabajos = gacetas.filter((e)=> e.gaceta_titulo.includes("TRABAJO DIRIGIDO"))
+        /* FILTRADOE DE CONVENIOS PARA GACETAS DE TIPO TRABAJO DIRIGIDO */
+        const filtertrabajos = gacetas.filter((e)=> e.gaceta_titulo.includes(TIPOS.TRABAJO_DIRIGIDO))
 
         const trabajos = filtertrabajos.map((item) => {
             // Copiar el objeto existente y agregar el nuevo campo
             return {
               ...item, // Copiar el objeto existente
-              filter: 'TRABAJOS'
+              filter: TIPOS.TRABAJOS
             };
         });
 
+        /* CONCATENACION DE CONVENIOS - PASANTIAS - TRABAJOS DIRIGIDOS */
         const items = convenios.concat(pasantias, trabajos);                
 
         return (
             <>
                 <Header4 />
                 {items && <div className="page-content">
-                    <Banner title={category} pagename={category} description={txt_content_banner_institucion} bgimage={bnrimg}/>
+                    <Banner title={category} pagename={category} description={txt_content_banner_institucion} bgimage={images.BgThree}/>
                     {/* SECTION CONTENT START */}
                     <div className="section-full p-tb80 inner-page-padding">
                         <div className="container">
                             {/* Filter Nav START */}
                             <div className="filter-wrap p-b30 text-center">
                                 <ul className="filter-navigation masonry-filter clearfix">
-                                    <li ><NavLink to={"#"} className="btn from-top" data-filter="*" data-hover="All">All</NavLink></li>
+                                    <li ><NavLink to={"#"} className="btn from-top" data-filter="*" data-hover="All">Todos</NavLink></li>
                                     {filters.map((item, index) => (
                                         <li key={index} className={`${item.filter === `.`+category ? `active`  : ""}`}><NavLink to={"#"} className={`btn from-top`} data-filter={item.filter} >{item.label}</NavLink></li>
                                     ))}
@@ -139,8 +147,8 @@ const ProjectGrid3 = () => {
                                                 </Document>
                                             </div>
                                             <div className="sx-info p-t20 text-white">
-                                                <a href={`${process.env.REACT_APP_ROOT_API}/Gaceta/${item.gaceta_documento}`} target='_blank' style={{textAlign: 'center', display:'block', marginBottom: '3em'}}><i className="fa fa-download" style={{fontSize : '6em'}} /></a>
-                                                <h4 className="sx-tilte"><a href={`${process.env.REACT_APP_ROOT_API}/Gaceta/${item.gaceta_documento}`} target='_blank'>{item.gaceta_titulo}</a></h4>
+                                                <a href={`${process.env.REACT_APP_ROOT_API}/Gaceta/${item.gaceta_documento}`} target='_blank' rel="noopener noreferrer" style={{textAlign: 'center', display:'block', marginBottom: '3em'}}><i className="fa fa-download" style={{fontSize : '6em'}} /></a>
+                                                <h4 className="sx-tilte"><a href={`${process.env.REACT_APP_ROOT_API}/Gaceta/${item.gaceta_documento}`} target='_blank' rel="noopener noreferrer">{item.gaceta_titulo}</a></h4>
                                                 <p className="m-b0">{institucion_iniciales} - {institucion_nombre}</p>                                                
                                             </div>                                            
                                         </div>
@@ -156,4 +164,10 @@ const ProjectGrid3 = () => {
     }
 };
 
+/* =============================================================================
+/
+/    WEB DEVELOPER => CRISTHIAN VILLCA MAMANI
+/    LINKEDIN => https://www.linkedin.com/in/cristhian-villca-mamani-06933b251/
+/
+================================================================================ */ 
 export default ProjectGrid3;

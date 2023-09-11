@@ -6,29 +6,20 @@ import Banner from './../Elements/Banner';
 import BlogSidebar from './../Elements/BlogSidebar';
 import CryptoJS from 'crypto-js';
 import { Document, Page, pdfjs } from "react-pdf";
-
-import { getInstitucion, getServicios, getOfertasAcademicas, getPublicaciones, getGacetas, getEventos, getVideos, getStaticDataCategoryDetail, getStaticDataKey, getConvocatorias, getCursos } from '../../api/institucionAPI';
+import { getInstitucion, getServicios, getOfertasAcademicas, getPublicaciones, getGacetas, getEventos, getVideos, getStaticDataCategoryDetail, getStaticDataKey, getConvocatorias, getCursos, getStaticImages } from '../../api/institucionAPI';
 import { useQuery } from '@tanstack/react-query';
+import { TIPOS } from '../../types/types';
 
 var bnrimg = require('./../../images/banner/4.jpg');
 var bgimg1 = require('./../../images/background/cross-line2.png');
 
 const PostRightSidebar = () =>{   
 
-    /* TIPOS DE CATEGORIAS PERMITIDAS */
-    const TYPE = {
-        CONVOCATORIAS : 'CONVOCATORIAS',
-        COMUNICADOS : 'COMUNICADOS',
-        AVISOS : 'AVISOS',
-        CURSOS : 'CURSOS',
-        SEMINARIOS : 'SEMINARIOS',
-        SERVICIOS : 'SERVICIOS',
-        OFERTAS_ACADEMICAS : 'OFERTAS_ACADEMICAS',
-        PUBLICACIONES: 'PUBLICACIONES',
-        GACETAS: 'GACETAS',
-        EVENTOS: 'EVENTOS',
-        VIDEOS: 'VIDEOS',
-    }
+    /* OBTENCION DE INFORMACION DEL STORE IMAGES */
+    const { isLoading: loading_images, data: images } = useQuery({
+        queryKey: ['getStaticImages'],
+        queryFn: getStaticImages,
+    });    
     
     /* OBTENEMOS EL TIPO DE CATEGORIA */
     const location = useLocation();
@@ -203,7 +194,7 @@ const PostRightSidebar = () =>{
         !loading_static_data &&
         !loading_servicios &&
         !loading_static_data_key &&
-        category === TYPE.SERVICIOS
+        category === TIPOS.SERVICIOS
         ) 
         {
 
@@ -244,7 +235,7 @@ const PostRightSidebar = () =>{
             <>
                 <Header4 />
                 {item && <div className="page-content ">
-                    <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={bnrimg} />
+                    <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={images.BgOne} />
                     {/* SECTION CONTENT START */}
                     <div className="section-full p-tb80 inner-page-padding">
                         <div className="container">
@@ -255,14 +246,14 @@ const PostRightSidebar = () =>{
                                         <div className="blog-post blog-detail text-black">
                                             <div className="sx-post-media">
                                                 <div className="portfolio-item">
-                                                <img className="img-responsive" src={`${process.env.REACT_APP_ROOT_API}/Carrera/Servicios/${item.serv_imagen}`} alt="" />
+                                                    <img style={{width: '100%'}} className="img-responsive" src={`${process.env.REACT_APP_ROOT_API}/Carrera/Servicios/${item.serv_imagen}`} alt="" />
                                                 </div>
                                             </div>
                                             <div className="sx-post-meta  m-t20">
                                                 <ul>
                                                     <li className="post-date"><strong>{formatearFecha(item.serv_registro)}</strong> </li>
                                                     <li className="post-author"><NavLink to={"/blog-masonry"}><span>{institucion_nombre}</span></NavLink> </li>
-                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TYPE.SERVICIOS}</span></NavLink> </li>
+                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TIPOS.SERVICIOS}</span></NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
@@ -271,71 +262,12 @@ const PostRightSidebar = () =>{
                                             <div className="sx-post-text">
                                                 <div dangerouslySetInnerHTML={{ __html: item.serv_descripcion }}></div>                                                                                                
                                             </div>                                            
-                                        </div>
-                                        {/* OUR BLOG START */}
-                                        {/* TITLE START */}
-                                        {ultimo && <div className="section-head">
-                                            <div className="sx-separator-outer separator-left">
-                                                <div className="sx-separator bg-white bg-moving bg-repeat-x" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
-                                                    <h3 className="sep-line-one">Ultimos {category}</h3>
-                                                </div>
-                                            </div>
-                                        </div>}
-                                        {/* TITLE END */}
-                                        {/* BLOG START */}
-                                        <div className="section-content">
-                                            <div className="row">
-                                                { ultimo && <div className="col-md-6 col-sm-6">
-                                                    <div className="blog-post blog-grid date-style-2">
-                                                        <div className="sx-post-media sx-img-effect img-reflection">
-                                                            <NavLink to={`/post-right-sidebar?id=${ultimo.serv_id}&tipo=${TYPE.SERVICIOS}`}><img src={`${process.env.REACT_APP_ROOT_API}/Carrera/Servicios/${ultimo.serv_imagen}`} alt="" /></NavLink>
-                                                        </div>
-                                                        <div className="sx-post-info p-t30">
-                                                            <div className="sx-post-meta ">
-                                                                <ul>
-                                                                    <li className="post-date"><strong>{obtenerDiaDeFecha(ultimo.serv_registro)}</strong> <span>{obtenerMesDeFecha(ultimo.serv_registro)}</span> </li>
-                                                                    <li className="post-author"><NavLink to={`/post-right-sidebar?id=${ultimo.serv_id}&tipo=${TYPE.SERVICIOS}`}><span>{institucion_iniciales}</span></NavLink> </li>
-                                                                    <li className="post-comment"> <NavLink to={`/post-right-sidebar?id=${ultimo.serv_id}&tipo=${TYPE.SERVICIOS}`}>{TYPE.SERVICIOS}</NavLink> </li>
-                                                                </ul>
-                                                            </div>
-                                                            <div className="sx-post-title ">
-                                                                <h4 className="post-title"><NavLink to={`/post-right-sidebar?id=${ultimo.serv_id}&tipo=${TYPE.SERVICIOS}`}>{ultimo.serv_nombre}</NavLink></h4>
-                                                            </div>
-                                                            <div className="sx-post-readmore">
-                                                                <NavLink to={`/post-right-sidebar?id=${ultimo.serv_id}&tipo=${TYPE.SERVICIOS}`} title="READ MORE" rel="bookmark" className="site-button-link">{txt_content_btn}</NavLink>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>}
-                                                { penultimo && <div className="col-md-6 col-sm-6">
-                                                    <div className="blog-post blog-grid date-style-2">
-                                                        <div className="sx-post-media sx-img-effect img-reflection">
-                                                            <NavLink to={`/post-right-sidebar?id=${penultimo.serv_id}&tipo=${TYPE.SERVICIOS}`}><img src={`${process.env.REACT_APP_ROOT_API}/Carrera/Servicios/${penultimo.serv_imagen}`} alt="" /></NavLink>
-                                                        </div>
-                                                        <div className="sx-post-info p-t30">
-                                                            <div className="sx-post-meta ">
-                                                                <ul>
-                                                                    <li className="post-date"><strong>{obtenerDiaDeFecha(penultimo.serv_registro)}</strong> <span>{obtenerMesDeFecha(penultimo.serv_registro)}</span> </li>
-                                                                    <li className="post-author"><NavLink to={`/post-right-sidebar?id=${penultimo.serv_id}&tipo=${TYPE.SERVICIOS}`}><span>{institucion_iniciales}</span></NavLink> </li>
-                                                                    <li className="post-comment"> <NavLink to={`/post-right-sidebar?id=${penultimo.serv_id}&tipo=${TYPE.SERVICIOS}`}>{TYPE.SERVICIOS}</NavLink> </li>
-                                                                </ul>
-                                                            </div>
-                                                            <div className="sx-post-title ">
-                                                                <h4 className="post-title"><NavLink to={`/post-right-sidebar?id=${penultimo.serv_id}&tipo=${TYPE.SERVICIOS}`}>{penultimo.serv_nombre}</NavLink></h4>
-                                                            </div>
-                                                            <div className="sx-post-readmore">
-                                                                <NavLink to={`/post-right-sidebar?id=${penultimo.serv_id}&tipo=${TYPE.SERVICIOS}`} title="READ MORE" rel="bookmark" className="site-button-link">{txt_content_btn}</NavLink>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>}
-                                            </div>
-                                        </div>                                        
+                                        </div>                                                                             
                                     </div>
                                 </div>
                                 {/* SIDE BAR START */}
                                 <div className="col-lg-4 col-md-12 col-sm-12 sticky_column">
-                                    <BlogSidebar />
+                                    <BlogSidebar tipo={category}/>
                                 </div>
                                 {/* SIDE BAR END */}
                             </div>
@@ -354,7 +286,7 @@ const PostRightSidebar = () =>{
         !loading_static_data &&
         !loading_ofertas &&
         !loading_static_data_key &&
-        category === TYPE.OFERTAS_ACADEMICAS
+        category === TIPOS.OFERTAS_ACADEMICAS
         ) 
         {
 
@@ -391,7 +323,7 @@ const PostRightSidebar = () =>{
                 <Header4 />
                 {item ? (
                     <div className="page-content ">
-                    <Banner title="Post With Right Sidebar" pagename="Post right sidebar" description="The essence of interior design will always be about people and how they live. It is about the realities of what makes for an attractive, civilized." bgimage={bnrimg} />
+                    <Banner title={"OFERTAS ACADEMICAS"} pagename={"OFERTAS ACADEMICAS"} description={txt_content_banner_detail} bgimage={images.BgOne} />
                     {/* SECTION CONTENT START */}
                     <div className="section-full p-tb80 inner-page-padding">
                         <div className="container">
@@ -402,7 +334,7 @@ const PostRightSidebar = () =>{
                                         <div className="blog-post blog-detail text-black">
                                             <div className="sx-post-media">
                                                 <div className="portfolio-item">
-                                                    <img className="img-responsive" src={`${process.env.REACT_APP_ROOT_API}/Carrera/OfertasAcademicas/${item.ofertas_imagen}`} alt="" />
+                                                    <img style={{width: '100%'}} className="img-responsive" src={`${process.env.REACT_APP_ROOT_API}/Carrera/OfertasAcademicas/${item.ofertas_imagen}`} alt="" />
                                                 </div>
                                             </div>
                                             <div className="sx-post-meta  m-t20">
@@ -418,71 +350,12 @@ const PostRightSidebar = () =>{
                                             <div className="sx-post-text">
                                                 <div dangerouslySetInnerHTML={{ __html: item.ofertas_descripcion }}></div>                                                
                                             </div>                                                                                        
-                                        </div>
-                                        {/* OUR BLOG START */}
-                                        {/* TITLE START */}
-                                        <div className="section-head">
-                                            <div className="sx-separator-outer separator-left">
-                                                <div className="sx-separator bg-white bg-moving bg-repeat-x" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
-                                                    <h3 className="sep-line-one">Blog</h3>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {/* TITLE END */}
-                                        {/* BLOG START */}
-                                        <div className="section-content">
-                                            <div className="row">
-                                                <div className="col-md-6 col-sm-6">
-                                                    <div className="blog-post blog-grid date-style-2">
-                                                        <div className="sx-post-media sx-img-effect img-reflection">
-                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic1.jpg')} alt="" /></NavLink>
-                                                        </div>
-                                                        <div className="sx-post-info p-t30">
-                                                            <div className="sx-post-meta ">
-                                                                <ul>
-                                                                    <li className="post-date"><strong>05</strong> <span>Sep</span> </li>
-                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
-                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
-                                                                </ul>
-                                                            </div>
-                                                            <div className="sx-post-title ">
-                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>We’ll nail your next project, because...</NavLink></h4>
-                                                            </div>
-                                                            <div className="sx-post-readmore">
-                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="col-md-6 col-sm-6">
-                                                    <div className="blog-post blog-grid date-style-2">
-                                                        <div className="sx-post-media sx-img-effect img-reflection">
-                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic2.jpg')} alt="" /></NavLink>
-                                                        </div>
-                                                        <div className="sx-post-info p-t30">
-                                                            <div className="sx-post-meta ">
-                                                                <ul>
-                                                                    <li className="post-date"><strong>25</strong> <span>Sep</span> </li>
-                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
-                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
-                                                                </ul>
-                                                            </div>
-                                                            <div className="sx-post-title ">
-                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>Helping you and your house become...</NavLink></h4>
-                                                            </div>
-                                                            <div className="sx-post-readmore">
-                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>                                        
+                                        </div>                                                                               
                                     </div>
                                 </div>
                                 {/* SIDE BAR START */}
                                 <div className="col-lg-4 col-md-12 col-sm-12 sticky_column">
-                                    <BlogSidebar />
+                                    <BlogSidebar tipo={category}/>
                                 </div>
                                 {/* SIDE BAR END */}
                             </div>
@@ -505,7 +378,7 @@ const PostRightSidebar = () =>{
         !loading_static_data &&
         !loading_publicaciones &&
         !loading_static_data_key &&
-        category === TYPE.PUBLICACIONES
+        category === TIPOS.PUBLICACIONES
         ) 
         {
 
@@ -527,7 +400,7 @@ const PostRightSidebar = () =>{
             <>
                 <Header4 />
                 <div className="page-content ">
-                    <Banner title="Post With Right Sidebar" pagename="Post right sidebar" description="The essence of interior design will always be about people and how they live. It is about the realities of what makes for an attractive, civilized." bgimage={bnrimg} />
+                <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={images.BgOne} />
                     {/* SECTION CONTENT START */}
                     <div className="section-full p-tb80 inner-page-padding">
                         <div className="container">
@@ -538,14 +411,14 @@ const PostRightSidebar = () =>{
                                         <div className="blog-post blog-detail text-black">
                                             <div className="sx-post-media">
                                                 <div className="portfolio-item">
-                                                    <img className="img-responsive" src={`${process.env.REACT_APP_ROOT_API}/Publicaciones/${item.publicaciones_imagen}`} alt="" />
+                                                    <img style={{width: '100%'}} className="img-responsive" src={`${process.env.REACT_APP_ROOT_API}/Publicaciones/${item.publicaciones_imagen}`} alt="" />
                                                 </div>
                                             </div>
                                             <div className="sx-post-meta  m-t20">
                                                 <ul>
                                                     <li className="post-date"><strong>{formatearFecha(item.publicaciones_fecha)}</strong></li>
                                                     <li className="post-author"><NavLink to={"/blog-masonry"}><span>{institucion_nombre}</span></NavLink> </li>
-                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TYPE.PUBLICACIONES}</span></NavLink> </li>
+                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TIPOS.PUBLICACIONES}</span></NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
@@ -554,71 +427,12 @@ const PostRightSidebar = () =>{
                                             <div className="sx-post-text">
                                                 <div dangerouslySetInnerHTML={{ __html: item.publicaciones_descripcion }}></div>                                                                                                                                                
                                             </div>                                                                                        
-                                        </div>
-                                        {/* OUR BLOG START */}
-                                        {/* TITLE START */}
-                                        <div className="section-head">
-                                            <div className="sx-separator-outer separator-left">
-                                                <div className="sx-separator bg-white bg-moving bg-repeat-x" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
-                                                    <h3 className="sep-line-one">Blog</h3>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {/* TITLE END */}
-                                        {/* BLOG START */}
-                                        <div className="section-content">
-                                            <div className="row">
-                                                <div className="col-md-6 col-sm-6">
-                                                    <div className="blog-post blog-grid date-style-2">
-                                                        <div className="sx-post-media sx-img-effect img-reflection">
-                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic1.jpg')} alt="" /></NavLink>
-                                                        </div>
-                                                        <div className="sx-post-info p-t30">
-                                                            <div className="sx-post-meta ">
-                                                                <ul>
-                                                                    <li className="post-date"><strong>05</strong> <span>Sep</span> </li>
-                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
-                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
-                                                                </ul>
-                                                            </div>
-                                                            <div className="sx-post-title ">
-                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>We’ll nail your next project, because...</NavLink></h4>
-                                                            </div>
-                                                            <div className="sx-post-readmore">
-                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="col-md-6 col-sm-6">
-                                                    <div className="blog-post blog-grid date-style-2">
-                                                        <div className="sx-post-media sx-img-effect img-reflection">
-                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic2.jpg')} alt="" /></NavLink>
-                                                        </div>
-                                                        <div className="sx-post-info p-t30">
-                                                            <div className="sx-post-meta ">
-                                                                <ul>
-                                                                    <li className="post-date"><strong>25</strong> <span>Sep</span> </li>
-                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
-                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
-                                                                </ul>
-                                                            </div>
-                                                            <div className="sx-post-title ">
-                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>Helping you and your house become...</NavLink></h4>
-                                                            </div>
-                                                            <div className="sx-post-readmore">
-                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>                                        
+                                        </div>                                                                               
                                     </div>
                                 </div>
                                 {/* SIDE BAR START */}
                                 <div className="col-lg-4 col-md-12 col-sm-12 sticky_column">
-                                    <BlogSidebar />
+                                    <BlogSidebar tipo={category}/>
                                 </div>
                                 {/* SIDE BAR END */}
                             </div>
@@ -638,7 +452,7 @@ const PostRightSidebar = () =>{
         !loading_static_data &&
         !loading_gacetas &&
         !loading_static_data_key &&
-        category === TYPE.GACETAS
+        category === TIPOS.GACETAS
         ) 
         {
 
@@ -660,7 +474,7 @@ const PostRightSidebar = () =>{
             <>
                 <Header4 />
                 <div className="page-content ">
-                    <Banner title="Post With Right Sidebar" pagename="Post right sidebar" description="The essence of interior design will always be about people and how they live. It is about the realities of what makes for an attractive, civilized." bgimage={bnrimg} />
+                <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={images.BgOne} />
                     {/* SECTION CONTENT START */}
                     <div className="section-full p-tb80 inner-page-padding">
                         <div className="container">
@@ -680,77 +494,18 @@ const PostRightSidebar = () =>{
                                                 <ul>
                                                     <li className="post-date"><strong>{formatearFecha(item.gaceta_fecha)}</strong> </li>
                                                     <li className="post-author"><NavLink to={"/blog-masonry"}><span>{institucion_nombre}</span></NavLink> </li>
-                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TYPE.GACETAS}</span></NavLink> </li>
+                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TIPOS.GACETAS}</span></NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
                                                 <h3 className="post-title">{item.gaceta_titulo}</h3>
                                             </div>                                            
-                                        </div>
-                                        {/* OUR BLOG START */}
-                                        {/* TITLE START */}
-                                        <div className="section-head">
-                                            <div className="sx-separator-outer separator-left">
-                                                <div className="sx-separator bg-white bg-moving bg-repeat-x" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
-                                                    <h3 className="sep-line-one">Blog</h3>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {/* TITLE END */}
-                                        {/* BLOG START */}
-                                        <div className="section-content">
-                                            <div className="row">
-                                                <div className="col-md-6 col-sm-6">
-                                                    <div className="blog-post blog-grid date-style-2">
-                                                        <div className="sx-post-media sx-img-effect img-reflection">
-                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic1.jpg')} alt="" /></NavLink>
-                                                        </div>
-                                                        <div className="sx-post-info p-t30">
-                                                            <div className="sx-post-meta ">
-                                                                <ul>
-                                                                    <li className="post-date"><strong>05</strong> <span>Sep</span> </li>
-                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
-                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
-                                                                </ul>
-                                                            </div>
-                                                            <div className="sx-post-title ">
-                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>We’ll nail your next project, because...</NavLink></h4>
-                                                            </div>
-                                                            <div className="sx-post-readmore">
-                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="col-md-6 col-sm-6">
-                                                    <div className="blog-post blog-grid date-style-2">
-                                                        <div className="sx-post-media sx-img-effect img-reflection">
-                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic2.jpg')} alt="" /></NavLink>
-                                                        </div>
-                                                        <div className="sx-post-info p-t30">
-                                                            <div className="sx-post-meta ">
-                                                                <ul>
-                                                                    <li className="post-date"><strong>25</strong> <span>Sep</span> </li>
-                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
-                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
-                                                                </ul>
-                                                            </div>
-                                                            <div className="sx-post-title ">
-                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>Helping you and your house become...</NavLink></h4>
-                                                            </div>
-                                                            <div className="sx-post-readmore">
-                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>                                       
+                                        </div>                                                                            
                                     </div>
                                 </div>
                                 {/* SIDE BAR START */}
                                 <div className="col-lg-4 col-md-12 col-sm-12 sticky_column">
-                                    <BlogSidebar />
+                                    <BlogSidebar tipo={category}/>
                                 </div>
                                 {/* SIDE BAR END */}
                             </div>
@@ -770,7 +525,7 @@ const PostRightSidebar = () =>{
         !loading_static_data &&
         !loading_eventos &&
         !loading_static_data_key &&
-        category === TYPE.EVENTOS
+        category === TIPOS.EVENTOS
         ) 
         {
 
@@ -792,7 +547,7 @@ const PostRightSidebar = () =>{
             <>
                 <Header4 />
                 <div className="page-content ">
-                    <Banner title="Post With Right Sidebar" pagename="Post right sidebar" description="The essence of interior design will always be about people and how they live. It is about the realities of what makes for an attractive, civilized." bgimage={bnrimg} />
+                <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={images.BgOne} />
                     {/* SECTION CONTENT START */}
                     <div className="section-full p-tb80 inner-page-padding">
                         <div className="container">
@@ -803,14 +558,14 @@ const PostRightSidebar = () =>{
                                         <div className="blog-post blog-detail text-black">
                                             <div className="sx-post-media">
                                                 <div className="portfolio-item">
-                                                    <img className="img-responsive" src={`${process.env.REACT_APP_ROOT_API}/Eventos/${item.evento_imagen}`} alt="" />
+                                                    <img style={{width: '100%'}} className="img-responsive" src={`${process.env.REACT_APP_ROOT_API}/Eventos/${item.evento_imagen}`} alt="" />
                                                 </div>
                                             </div>
                                             <div className="sx-post-meta  m-t20">
                                                 <ul>
                                                     <li className="post-date"><strong>{formatearFecha(item.evento_fecha)}</strong> </li>
                                                     <li className="post-author"><NavLink to={"/blog-masonry"}><span>{institucion_nombre}</span></NavLink> </li>
-                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TYPE.EVENTOS}</span></NavLink> </li>
+                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TIPOS.EVENTOS}</span></NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
@@ -819,71 +574,12 @@ const PostRightSidebar = () =>{
                                             <div className="sx-post-text">
                                                 <div dangerouslySetInnerHTML={{ __html: item.evento_descripcion }}></div>                                                
                                             </div>                                            
-                                        </div>
-                                        {/* OUR BLOG START */}
-                                        {/* TITLE START */}
-                                        <div className="section-head">
-                                            <div className="sx-separator-outer separator-left">
-                                                <div className="sx-separator bg-white bg-moving bg-repeat-x" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
-                                                    <h3 className="sep-line-one">Blog</h3>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {/* TITLE END */}
-                                        {/* BLOG START */}
-                                        <div className="section-content">
-                                            <div className="row">
-                                                <div className="col-md-6 col-sm-6">
-                                                    <div className="blog-post blog-grid date-style-2">
-                                                        <div className="sx-post-media sx-img-effect img-reflection">
-                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic1.jpg')} alt="" /></NavLink>
-                                                        </div>
-                                                        <div className="sx-post-info p-t30">
-                                                            <div className="sx-post-meta ">
-                                                                <ul>
-                                                                    <li className="post-date"><strong>05</strong> <span>Sep</span> </li>
-                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
-                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
-                                                                </ul>
-                                                            </div>
-                                                            <div className="sx-post-title ">
-                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>We’ll nail your next project, because...</NavLink></h4>
-                                                            </div>
-                                                            <div className="sx-post-readmore">
-                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="col-md-6 col-sm-6">
-                                                    <div className="blog-post blog-grid date-style-2">
-                                                        <div className="sx-post-media sx-img-effect img-reflection">
-                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic2.jpg')} alt="" /></NavLink>
-                                                        </div>
-                                                        <div className="sx-post-info p-t30">
-                                                            <div className="sx-post-meta ">
-                                                                <ul>
-                                                                    <li className="post-date"><strong>25</strong> <span>Sep</span> </li>
-                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
-                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
-                                                                </ul>
-                                                            </div>
-                                                            <div className="sx-post-title ">
-                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>Helping you and your house become...</NavLink></h4>
-                                                            </div>
-                                                            <div className="sx-post-readmore">
-                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>                                        
+                                        </div>                                                                               
                                     </div>
                                 </div>
                                 {/* SIDE BAR START */}
                                 <div className="col-lg-4 col-md-12 col-sm-12 sticky_column">
-                                    <BlogSidebar />
+                                    <BlogSidebar tipo={category}/>
                                 </div>
                                 {/* SIDE BAR END */}
                             </div>
@@ -903,7 +599,7 @@ const PostRightSidebar = () =>{
         !loading_static_data &&
         !loading_videos &&
         !loading_static_data_key &&
-        category === TYPE.VIDEOS
+        category === TIPOS.VIDEOS
         ) 
         {
 
@@ -925,7 +621,7 @@ const PostRightSidebar = () =>{
             <>
                 <Header4 />
                 <div className="page-content ">
-                    <Banner title="Post With Right Sidebar" pagename="Post right sidebar" description="The essence of interior design will always be about people and how they live. It is about the realities of what makes for an attractive, civilized." bgimage={bnrimg} />
+                <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={images.BgOne} />
                     {/* SECTION CONTENT START */}
                     <div className="section-full p-tb80 inner-page-padding">
                         <div className="container">
@@ -937,8 +633,8 @@ const PostRightSidebar = () =>{
                                             <div className="sx-post-media">
                                                 <div className="portfolio-item">
                                                 <iframe
-                                                    width="560" // Ancho deseado
-                                                    height="315" // Alto deseado
+                                                    width="100%" // Ancho deseado
+                                                    height="" // Alto deseado
                                                     src={item.video_enlace} // URL de embed del video
                                                     title="Video Embed"
                                                     frameBorder="0"
@@ -949,7 +645,7 @@ const PostRightSidebar = () =>{
                                             <div className="sx-post-meta  m-t20">
                                                 <ul>
                                                     <li className="post-author"><NavLink to={"/blog-masonry"}><span>{institucion_nombre}</span></NavLink> </li>
-                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TYPE.VIDEOS}</span></NavLink> </li>
+                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TIPOS.VIDEOS}</span></NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
@@ -958,71 +654,12 @@ const PostRightSidebar = () =>{
                                             <div className="sx-post-text">
                                                 <div dangerouslySetInnerHTML={{ __html: item.video_breve_descripcion }}></div>                                                                                                
                                             </div>                                            
-                                        </div>
-                                        {/* OUR BLOG START */}
-                                        {/* TITLE START */}
-                                        <div className="section-head">
-                                            <div className="sx-separator-outer separator-left">
-                                                <div className="sx-separator bg-white bg-moving bg-repeat-x" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
-                                                    <h3 className="sep-line-one">Blog</h3>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {/* TITLE END */}
-                                        {/* BLOG START */}
-                                        <div className="section-content">
-                                            <div className="row">
-                                                <div className="col-md-6 col-sm-6">
-                                                    <div className="blog-post blog-grid date-style-2">
-                                                        <div className="sx-post-media sx-img-effect img-reflection">
-                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic1.jpg')} alt="" /></NavLink>
-                                                        </div>
-                                                        <div className="sx-post-info p-t30">
-                                                            <div className="sx-post-meta ">
-                                                                <ul>
-                                                                    <li className="post-date"><strong>05</strong> <span>Sep</span> </li>
-                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
-                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
-                                                                </ul>
-                                                            </div>
-                                                            <div className="sx-post-title ">
-                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>We’ll nail your next project, because...</NavLink></h4>
-                                                            </div>
-                                                            <div className="sx-post-readmore">
-                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="col-md-6 col-sm-6">
-                                                    <div className="blog-post blog-grid date-style-2">
-                                                        <div className="sx-post-media sx-img-effect img-reflection">
-                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic2.jpg')} alt="" /></NavLink>
-                                                        </div>
-                                                        <div className="sx-post-info p-t30">
-                                                            <div className="sx-post-meta ">
-                                                                <ul>
-                                                                    <li className="post-date"><strong>25</strong> <span>Sep</span> </li>
-                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
-                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
-                                                                </ul>
-                                                            </div>
-                                                            <div className="sx-post-title ">
-                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>Helping you and your house become...</NavLink></h4>
-                                                            </div>
-                                                            <div className="sx-post-readmore">
-                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>                                        
+                                        </div>                                                                               
                                     </div>
                                 </div>
                                 {/* SIDE BAR START */}
                                 <div className="col-lg-4 col-md-12 col-sm-12 sticky_column">
-                                    <BlogSidebar />
+                                    <BlogSidebar tipo={category}/>
                                 </div>
                                 {/* SIDE BAR END */}
                             </div>
@@ -1043,9 +680,9 @@ const PostRightSidebar = () =>{
         !loading_convocatorias &&
         !loading_static_data_key
         ) &&
-        (category === TYPE.CONVOCATORIAS ||
-        category === TYPE.COMUNICADOS ||
-        category === TYPE.AVISOS 
+        (category === TIPOS.CONVOCATORIAS ||
+        category === TIPOS.COMUNICADOS ||
+        category === TIPOS.AVISOS 
         )
         ) 
         {
@@ -1068,7 +705,7 @@ const PostRightSidebar = () =>{
             <>
                 <Header4 />
                 <div className="page-content ">
-                    <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={bnrimg} />
+                <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={images.BgOne} />
                     {/* SECTION CONTENT START */}
                     <div className="section-full p-tb80 inner-page-padding">
                         <div className="container">
@@ -1079,7 +716,7 @@ const PostRightSidebar = () =>{
                                         <div className="blog-post blog-detail text-black">
                                             <div className="sx-post-media">
                                                 <div className="portfolio-item">
-                                                    <img className="img-responsive" src={`${process.env.REACT_APP_ROOT_API}/Convocatorias/${item.con_foto_portada}`} alt="" />
+                                                    <img style={{width: '100%'}} className="img-responsive" src={`${process.env.REACT_APP_ROOT_API}/Convocatorias/${item.con_foto_portada}`} alt="" />
                                                 </div>
                                             </div>
                                             <div className="sx-post-meta  m-t20">
@@ -1095,71 +732,12 @@ const PostRightSidebar = () =>{
                                             <div className="sx-post-text">
                                                 {/* <div dangerouslySetInnerHTML={{ __html: item.video_breve_descripcion }}></div>                                                                                                 */}
                                             </div>                                            
-                                        </div>
-                                        {/* OUR BLOG START */}
-                                        {/* TITLE START */}
-                                        <div className="section-head">
-                                            <div className="sx-separator-outer separator-left">
-                                                <div className="sx-separator bg-white bg-moving bg-repeat-x" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
-                                                    <h3 className="sep-line-one">Blog</h3>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {/* TITLE END */}
-                                        {/* BLOG START */}
-                                        <div className="section-content">
-                                            <div className="row">
-                                                <div className="col-md-6 col-sm-6">
-                                                    <div className="blog-post blog-grid date-style-2">
-                                                        <div className="sx-post-media sx-img-effect img-reflection">
-                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic1.jpg')} alt="" /></NavLink>
-                                                        </div>
-                                                        <div className="sx-post-info p-t30">
-                                                            <div className="sx-post-meta ">
-                                                                <ul>
-                                                                    <li className="post-date"><strong>05</strong> <span>Sep</span> </li>
-                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
-                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
-                                                                </ul>
-                                                            </div>
-                                                            <div className="sx-post-title ">
-                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>We’ll nail your next project, because...</NavLink></h4>
-                                                            </div>
-                                                            <div className="sx-post-readmore">
-                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="col-md-6 col-sm-6">
-                                                    <div className="blog-post blog-grid date-style-2">
-                                                        <div className="sx-post-media sx-img-effect img-reflection">
-                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic2.jpg')} alt="" /></NavLink>
-                                                        </div>
-                                                        <div className="sx-post-info p-t30">
-                                                            <div className="sx-post-meta ">
-                                                                <ul>
-                                                                    <li className="post-date"><strong>25</strong> <span>Sep</span> </li>
-                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
-                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
-                                                                </ul>
-                                                            </div>
-                                                            <div className="sx-post-title ">
-                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>Helping you and your house become...</NavLink></h4>
-                                                            </div>
-                                                            <div className="sx-post-readmore">
-                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>                                        
+                                        </div>                                                                              
                                     </div>
                                 </div>
                                 {/* SIDE BAR START */}
                                 <div className="col-lg-4 col-md-12 col-sm-12 sticky_column">
-                                    <BlogSidebar />
+                                    <BlogSidebar tipo={category}/>
                                 </div>
                                 {/* SIDE BAR END */}
                             </div>
@@ -1180,8 +758,8 @@ const PostRightSidebar = () =>{
         !loading_cursos &&
         !loading_static_data_key
         ) &&
-        (category === TYPE.CURSOS ||
-        category === TYPE.SEMINARIOS 
+        (category === TIPOS.CURSOS ||
+        category === TIPOS.SEMINARIOS 
         )
         ) 
         {
@@ -1204,7 +782,7 @@ const PostRightSidebar = () =>{
             <>
                 <Header4 />
                 <div className="page-content ">
-                    <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={bnrimg} />
+                <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={images.BgOne} />
                     {/* SECTION CONTENT START */}
                     <div className="section-full p-tb80 inner-page-padding">
                         <div className="container">
@@ -1215,14 +793,14 @@ const PostRightSidebar = () =>{
                                         <div className="blog-post blog-detail text-black">
                                             <div className="sx-post-media">
                                                 <div className="portfolio-item">
-                                                    <img className="img-responsive" src={`${process.env.REACT_APP_ROOT_API}/Cursos/${item.det_img_portada}`} alt="" />
+                                                    <img style={{width: '100%'}} className="img-responsive" src={`${process.env.REACT_APP_ROOT_API}/Cursos/${item.det_img_portada}`} alt="" />
                                                 </div>
                                             </div>
                                             <div className="sx-post-meta  m-t20">
                                                 <ul>
                                                 <li className="post-date"><strong>{formatearFecha(item.det_fecha_ini)}</strong> </li>
                                                     <li className="post-author"><NavLink to={"/blog-masonry"}><span>{institucion_nombre}</span></NavLink> </li>
-                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TYPE.VIDEOS}</span></NavLink> </li>
+                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TIPOS.VIDEOS}</span></NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
@@ -1231,71 +809,12 @@ const PostRightSidebar = () =>{
                                             <div className="sx-post-text">
                                                 {/* <div dangerouslySetInnerHTML={{ __html: item.video_breve_descripcion }}></div>*/}
                                             </div>                                            
-                                        </div>
-                                        {/* OUR BLOG START */}
-                                        {/* TITLE START */}
-                                        <div className="section-head">
-                                            <div className="sx-separator-outer separator-left">
-                                                <div className="sx-separator bg-white bg-moving bg-repeat-x" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
-                                                    <h3 className="sep-line-one">Blog</h3>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {/* TITLE END */}
-                                        {/* BLOG START */}
-                                        <div className="section-content">
-                                            <div className="row">
-                                                <div className="col-md-6 col-sm-6">
-                                                    <div className="blog-post blog-grid date-style-2">
-                                                        <div className="sx-post-media sx-img-effect img-reflection">
-                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic1.jpg')} alt="" /></NavLink>
-                                                        </div>
-                                                        <div className="sx-post-info p-t30">
-                                                            <div className="sx-post-meta ">
-                                                                <ul>
-                                                                    <li className="post-date"><strong>05</strong> <span>Sep</span> </li>
-                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
-                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
-                                                                </ul>
-                                                            </div>
-                                                            <div className="sx-post-title ">
-                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>We’ll nail your next project, because...</NavLink></h4>
-                                                            </div>
-                                                            <div className="sx-post-readmore">
-                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="col-md-6 col-sm-6">
-                                                    <div className="blog-post blog-grid date-style-2">
-                                                        <div className="sx-post-media sx-img-effect img-reflection">
-                                                            <NavLink to={"/blog-masonry"}><img src={require('./../../images/blog/blog-grid/pic2.jpg')} alt="" /></NavLink>
-                                                        </div>
-                                                        <div className="sx-post-info p-t30">
-                                                            <div className="sx-post-meta ">
-                                                                <ul>
-                                                                    <li className="post-date"><strong>25</strong> <span>Sep</span> </li>
-                                                                    <li className="post-author"><NavLink to={"/blog-masonry"}>By <span>John</span></NavLink> </li>
-                                                                    <li className="post-comment"> <NavLink to={"/blog-masonry"}>5 Comments</NavLink> </li>
-                                                                </ul>
-                                                            </div>
-                                                            <div className="sx-post-title ">
-                                                                <h4 className="post-title"><NavLink to={"/blog-masonry"}>Helping you and your house become...</NavLink></h4>
-                                                            </div>
-                                                            <div className="sx-post-readmore">
-                                                                <NavLink to={"/blog-masonry"} title="READ MORE" rel="bookmark" className="site-button-link">View More</NavLink>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>                                        
+                                        </div>                                                                               
                                     </div>
                                 </div>
                                 {/* SIDE BAR START */}
                                 <div className="col-lg-4 col-md-12 col-sm-12 sticky_column">
-                                    <BlogSidebar />
+                                    <BlogSidebar tipo={category}/>
                                 </div>
                                 {/* SIDE BAR END */}
                             </div>
