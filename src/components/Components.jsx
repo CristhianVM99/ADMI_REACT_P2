@@ -63,60 +63,15 @@ const Components = () => {
             <ScrollToTop />
             <div className="page-wraper">
                     <Routes>
-                        <Route path='/' element={<Home1/>} />
-                        <Route path='/home-2' element={<Home2/>} />
-                        <Route path='/home-3' element={<Home3/>} />
-                        <Route path='/home-4' element={<Home4/>} />
-                        <Route path='/home-5' element={<Home5/>} />
-                        <Route path='/home-6' element={<Home6/>} />
+                        <Route path='/' element={<Home1/>} />                        
 
                         <Route path='/academia' element={<About1/>} />
                         <Route path='/sobreNosotros' element={<About2/>} />
-
-                        <Route path='/services-1' element={<Services1/>} />
-                        <Route path='/services-2' element={<Services2/>} />
-                        <Route path='/services-detail' element={<ServiceDetail/>} />
-
-                        <Route path='/team-1' element={<Team1/>} />
-                        <Route path='/team-2' element={<Team2/>} />
-                        <Route path='/team-single' element={<TeamDetail/>} />
-
-                        <Route path='/our-history' element={<OurHistory/>} />
-                        <Route path='/icon-font' element={<FontIcons/>} />
+                        <Route path='/categoria' element={<Services1/>} />                                                                        
                         <Route path='/error-404' element={<Error/>} />
-
-                        <Route path='/institucion' element={<ProjectGrid3/>} />
-                        <Route path='/project-grid-3-columns-no-gap' element={<ProjectGridNoGap3/>} />
-                        <Route path='/project-grid-4-columns' element={<ProjectGrid4/>} />
-                        <Route path='/project-grid-4-columns-no-gap' element={<ProjectGridNoGap4/>} />
-                        <Route path='/project-grid-5-columns' element={<ProjectGrid5/>} />
-                        <Route path='/project-grid-5-columns-no-gap' element={<ProjectGridNoGap5/>} />
-
-                        <Route path='/project-masonry-3-columns' element={<ProjectMasonary3/>} />
-                        <Route path='/project-masonry-3-columns-no-gap' element={<ProjectMasonaryNoGap3/>} />
-                        <Route path='/project-masonry-4-columns' element={<ProjectMasonary4/>} />
-                        <Route path='/project-masonry-4-columns-no-gap' element={<ProjectMasonaryNoGap4/>} />
-                        <Route path='/project-masonry-5-columns' element={<ProjectMasonary5/>} />
-                        <Route path='/project-masonry-5-columns-no-gap' element={<ProjectMasonaryNoGap5/>} />
-
-                        <Route path='/project-carousel' element={<ProjectCorousel/>} />
-                        <Route path='/project-detail1' element={<ProjectDetail1/>} />
-                        <Route path='/project-detail2' element={<ProjectDetail2/>} />
-
-                        <Route path='/recursos' element={<BlogGrid/>} />
-                        <Route path='/blog-listing' element={<BlogListing/>} />
-                        <Route path='/blog-masonry' element={<BlogMasonary/>} />
-                        <Route path='/blog-single' element={<BlogSingle/>} />
-                        <Route path='/detalle' element={<PostRightSidebar/>} />
-
-                        <Route path='/shop-grid' element={<ShopGrid/>} />
-                        <Route path='/shop-list' element={<ShopList/>} />
-                        <Route path='/shop-detail' element={<ShopDetail/>} />
-                        <Route path='/shop-account' element={<ShopAccount/>} />
-                        <Route path='/shop-cart' element={<ShopCart/>} />
-                        <Route path='/shop-checkout' element={<ShopCheckout/>} />
-
-                        <Route path='/faq' element={<Faq/>} />
+                        <Route path='/institucion' element={<ProjectGrid3/>} />                                                                        
+                        <Route path='/recursos' element={<BlogGrid/>} />                        
+                        <Route path='/detalle' element={<PostRightSidebar/>} />                        
                         <Route path='/contacto' element={<ContactUs/>} />
                         
                         <Route element={<Error/>} />

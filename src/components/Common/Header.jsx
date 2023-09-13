@@ -5,7 +5,6 @@ import { getInstitucion,getStaticData } from '../../api/institucionAPI';
 import { useQuery } from '@tanstack/react-query';
 
 import bnr from './../../images/background/bg-map.png';
-import logo1 from './../../images/logo-1.png';
 
 const Header = () => {
     

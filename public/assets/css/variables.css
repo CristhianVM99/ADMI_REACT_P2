@@ -1,0 +1,8 @@
+:root{
+	/*--color-primario : #d7b39a; */
+    /*--color-secundario : #23252d; */
+	--color-primario : red; 
+    --color-secundario : blue;
+    --color-terciario : green;
+
+}

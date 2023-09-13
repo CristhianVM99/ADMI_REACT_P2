@@ -1,3 +1,5 @@
+@import url(./variables.css);
+
 .styleswitcher .switcher-title {
 	text-transform:uppercase;
 	font-weight:600;

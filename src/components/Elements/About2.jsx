@@ -34,6 +34,8 @@ const About2 = ({tipo}) => {
         queryFn: getStaticImages,
     });
 
+    const sinRegistros = (<div style={{textAlign: 'center', fontSize:'3em', padding: '20px', background: 'var(--color-primario)',color: '#fff'}}>Sin Registros</div>)
+
     if(!loading_institucion && !loading_gacetas && !loading_static_data && tipo !== TIPOS.REGLAMENTO){
 
         /* DATOS ESTATICOS */
@@ -54,7 +56,7 @@ const About2 = ({tipo}) => {
         }
         if(tipo === TIPOS.HORARIO){
             /* OBTENEMOS EL CALENDARIO DE LA INSTITUCION */            
-            item = gacetas.find((e) => e.gaceta_titulo.includes(TIPOS.CALENDARIO))                         
+            item = gacetas.find((e) => e.gaceta_titulo.includes(TIPOS.HORARIO))                         
             content = txt_content_horario
         }
         if(tipo === TIPOS.PLANESTUDIO){
@@ -86,16 +88,17 @@ const About2 = ({tipo}) => {
                             </div>
                         </div>
                     </div>
-                </div>): <div>Sin Registros</div>}
+                </div>): sinRegistros}
             </>
         );
     }
 
-    if(!loading_institucion && !loading_static_data && tipo === TIPOS.REGLAMENTO){
+    if(!loading_institucion && !loading_static_data && !loading_images && tipo === TIPOS.REGLAMENTO){
         
         /* DATOS DE LA INSTITUCION */
         const {
-            institucion_sobre_ins
+            institucion_sobre_ins,
+            portada
         } = institucion
 
         /* DATOS ESTATICOS */
@@ -103,26 +106,30 @@ const About2 = ({tipo}) => {
             txt_content_reglamento,
         } = staticData   
 
+        const indiceAleatorio = Math.floor(Math.random() * portada.length);
+        const imagenSeleccionada = portada[indiceAleatorio].portada_imagen;
+        const img = `${process.env.REACT_APP_ROOT_API}/InstitucionUpea/Portada/${imagenSeleccionada}`;
+
         return (
             <>
                 <div className="section-full mobile-page-padding p-t80 p-b80 bg-gray">
-                        <div className="container">
-                            <div className="section-content">
-                                <div className="row">
-                                <div className="col-xl-5 col-lg-5 col-md-12 ">
-                                        <div className="home-2-about bg-bottom-left bg-no-repeat bg-cover" style={{ backgroundImage: 'url(' + images.BgThree + ')' }}>
-                                        </div>
+                    <div className="container">
+                        <div className="section-content">
+                            <div className="row">
+                            <div className="col-xl-5 col-lg-5 col-md-12 ">
+                                    <div className="home-2-about bg-bottom-left bg-no-repeat bg-cover" style={{ backgroundImage: 'url(' + img ?? images.BgThree + ')' }}>
                                     </div>
-                                    <div className="col-xl-7 col-lg-7 col-md-12">
-                                        <div className="about-home-2">
-                                            <h3 className="m-t0 sx-tilte">{txt_content_reglamento}</h3>
-                                            <div dangerouslySetInnerHTML={{ __html: institucion_sobre_ins }}></div>                                            
-                                        </div>
+                                </div>
+                                <div className="col-xl-7 col-lg-7 col-md-12">
+                                    <div className="about-home-2">
+                                        <h3 className="m-t0 sx-tilte">{txt_content_reglamento}</h3>
+                                        <div dangerouslySetInnerHTML={{ __html: institucion_sobre_ins }}></div>                                            
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
             </>
         );
     }

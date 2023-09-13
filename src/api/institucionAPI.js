@@ -94,3 +94,7 @@ export const getStaticDataInstitucion = () => {
 export const getStaticImages = () => {
     return staticData.dataImagesStatic
 }
+
+export const getStaticDataVerMas = () =>{
+    return staticData.dataVerMas
+}

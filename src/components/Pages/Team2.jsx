@@ -3,68 +3,94 @@ import { NavLink } from 'react-router-dom';
 import Header4 from './../Common/Header4';
 import Footer from './../Common/Footer';
 import Banner from './../Elements/Banner';
+import { getInstitucion, getStaticDataIndex } from '../../api/institucionAPI';
+import { useQuery } from '@tanstack/react-query';
 
-const teamMembers = [
-    {
-        image: require('./../../images/our-team5/1.jpg'),
-        membername: 'Johnny Jackman',
-        position: 'Architect'
-    },
-    {
-        image: require('./../../images/our-team5/2.jpg'),
-        membername: 'Daniel Rickman',
-        position: 'Architect'
-    },
-    {
-        image: require('./../../images/our-team5/3.jpg'),
-        membername: 'Mark Norwich',
-        position: 'Finances'
-    },
-    {
-        image: require('./../../images/our-team5/5.jpg'),
-        membername: 'Johnny Jackman',
-        position: 'Architect'
-    },
-    {
-        image: require('./../../images/our-team5/6.jpg'),
-        membername: 'Daniel Rickman',
-        position: 'Architect'
-    },
-    {
-        image: require('./../../images/our-team5/7.jpg'),
-        membername: 'Mark Norwich',
-        position: 'Finances'
-    },
-]
 
-var bnrimg = require('./../../images/banner/2.jpg');
 
-class Team2 extends React.Component {
-    render() {
+var bgimg1 = require("./../../images/background/cross-line2.png");
+
+const Team2 = () =>{
+
+    /* OBTENCION DE INFORMACION DEL STORE API */
+    const { isLoading: loading_institucion, data: institucion } = useQuery({
+        queryKey: ['institucion'],
+        queryFn: getInstitucion,
+    })
+
+    /* OBTENCION DE INFORMACION DEL STORE STATICO */
+    const { isLoading: loading_static_data, data: staticData } = useQuery({
+        queryKey: ['staticDataIndex'],
+        queryFn: getStaticDataIndex,
+    });  
+
+    if(!loading_institucion && !loading_static_data){
+
+        const teamMembers = [
+            {
+                image: require('./../../images/our-team5/1.jpg'),
+                membername: 'Johnny Jackman',
+                position: 'Architect'
+            },
+            {
+                image: require('./../../images/our-team5/2.jpg'),
+                membername: 'Daniel Rickman',
+                position: 'Architect'
+            },
+            {
+                image: require('./../../images/our-team5/3.jpg'),
+                membername: 'Mark Norwich',
+                position: 'Finances'
+            },
+        ]
+
+        /* INFORMACION DE LA INSTITUCION */
+        const {
+          autoridad
+        } = institucion;
+
+        /* INFORMACION ESTATICA */
+        const {
+          txt_content_autoridades,
+        }= staticData
+
         return (
             <>
-                <Header4 />
                 <div className="page-content">
-                    <Banner title="Our Experts 2" pagename="Team Style 2" description="The essence of interior design will always be about people and how they live. It is about the realities of what makes for an attractive, civilized." bgimage={bnrimg} />
                     {/* OUR EXPERTS SECTION START */}
+                    {/* TITLE START */}
+                    <div className="section-head">
+                        <div className="sx-separator-outer separator-center">
+                            <div className="sx-separator bg-white bg-moving bg-repeat-x" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
+                                <h3 className="sep-line-one">{txt_content_autoridades}</h3>
+                            </div>
+                        </div>
+                    </div>
                     <div className="section-full p-t80 p-b50 mobile-page-padding">
                         <div className="container">
                             {/* IMAGE CAROUSEL START */}
                             <div className="section-content">
                                 <div className="row">
-                                    {teamMembers.map((item, index) => (
+                                    {autoridad.map((item, index) => (
                                         <div className="col-xl-4 col-lg-4 col-md-6 col-sm-12 m-b30" key={index}>
                                             <div className="our-team-3">
-                                                <div className="our-team-info ">
-                                                    <img src={item.image} alt="" />
+                                                <div className="our-team-info" >
+                                                    <img style={{height: '400px', width: '100%', objectFit: 'cover',objectPosition: 'top'}} src={`${process.env.REACT_APP_ROOT_API}/InstitucionUpea/Autoridad/${item.foto_autoridad}`} alt="" />
                                                     <div className="our-team-content">
-                                                        <h4 className="sx-team-name"><NavLink to={"/team-single"} className="sx-text-white">{item.membername}</NavLink></h4>
-                                                        <span className="sx-team-position text-white">{item.position}</span>
+                                                        <h4 className="sx-team-name" style={{color: 'var(--color-primario)'}}>{item.nombre_autoridad}</h4>
+                                                        <span className="sx-team-position text-white">{item.cargo_autoridad}</span>
                                                         <p>
-                                                        <a href="https://www.facebook.com" target="_blank"><i className="fa fa-facebook" /></a>
-                                                        <a href="https://www.twitter.com" target="_blank"> <i className="fa fa-twitter" /></a>
-                                                        <a href="https://www.instagram.com" target="_blank"> <i className="fa fa-instagram" /></a>
-                                                        <a href="https://in.linkedin.com" target="_blank"> <i className="fa fa-linkedin" /></a>
+                                                        <a href={item.facebook_autoridad} target="_blank" rel="noopener noreferrer">
+                                                          <i className="fa fa-facebook" />
+                                                        </a>
+                                                        <a href={item.twiter_autoridad} target="_blank" rel="noopener noreferrer">
+                                                          {" "}
+                                                          <i className="fa fa-twitter" />
+                                                        </a>
+                                                        <a href={item.celular_autoridad} target="_blank" rel="noopener noreferrer">
+                                                          {" "}
+                                                          <i className="fa fa-whatsapp" />
+                                                        </a>  
                                                         </p>
                                                     </div>
                                                 </div>
@@ -76,12 +102,10 @@ class Team2 extends React.Component {
                         </div>
                     </div>
                     {/* OUR EXPERTS SECTION END */}
-                </div>
-
-                <Footer />
+                </div>                
             </>
         );
-    };
+    }
 };
 
 export default Team2;

@@ -46,6 +46,8 @@ const ProjectGrid3 = () => {
         { label: TIPOS.TRABAJOS, filter: "."+TIPOS.TRABAJOS },
     ];            
 
+    const sinRegistros = (<div style={{textAlign: 'center', fontSize:'3em', padding: '20px', background: 'var(--color-primario)',color: '#fff'}}>Sin Registros</div>)
+
     useEffect(()=>{
 
         pdfjs.GlobalWorkerOptions.workerSrc =`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
@@ -67,7 +69,31 @@ const ProjectGrid3 = () => {
         };
 
         loadScript('./assets/js/custom.js');
-    })
+
+        // Establecer colores si los datos están disponibles
+        if (!loading_institucion) {
+            const { colorinstitucion, institucion_logo, institucion_iniciales, institucion_nombre } = institucion;
+            document.documentElement.style.setProperty(
+              "--color-primario",
+              colorinstitucion[0].color_primario
+            );
+            document.documentElement.style.setProperty(
+              "--color-secundario",
+              colorinstitucion[0].color_secundario
+            );
+            document.documentElement.style.setProperty(
+              "--color-terciario",
+              colorinstitucion[0].color_terciario
+            );
+            // Establece el ícono en el encabezado
+            const link = document.querySelector("link[rel~='icon']") || document.createElement('link');
+            link.type = 'image/x-icon';
+            link.rel = 'icon';
+            link.href = `${process.env.REACT_APP_ROOT_API}/InstitucionUpea/${institucion_logo}`;
+            document.getElementsByTagName('head')[0].appendChild(link);
+            document.title =  institucion_iniciales+" | "+institucion_nombre 
+          }
+    }, [loading_institucion, institucion])
 
     if(!loading_institucion && !loading_static_data && !loading_gacetas && !loading_images){
 
@@ -79,7 +105,8 @@ const ProjectGrid3 = () => {
         /* DATOS OBTENIDOS DESDE LA STORE STATICA*/
         const {
             institucion_iniciales,
-            institucion_nombre
+            institucion_nombre,
+            portada
         } = institucion
 
         /* FILTRADOE DE CONVENIOS PARA GACETAS DE TIPO CONVENIO */
@@ -118,11 +145,15 @@ const ProjectGrid3 = () => {
         /* CONCATENACION DE CONVENIOS - PASANTIAS - TRABAJOS DIRIGIDOS */
         const items = convenios.concat(pasantias, trabajos);                
 
+        const indiceAleatorio = Math.floor(Math.random() * portada.length);
+        const imagenSeleccionada = portada[indiceAleatorio].portada_imagen;
+        const img = `${process.env.REACT_APP_ROOT_API}/InstitucionUpea/Portada/${imagenSeleccionada}`;
+
         return (
             <>
                 <Header4 />
-                {items && <div className="page-content">
-                    <Banner title={category} pagename={category} description={txt_content_banner_institucion} bgimage={images.BgThree}/>
+                <Banner title={category} pagename={category} description={txt_content_banner_institucion} bgimage={ img ?? images.BgThree}/>
+                {items.length > 0 ? <div className="page-content">                    
                     {/* SECTION CONTENT START */}
                     <div className="section-full p-tb80 inner-page-padding">
                         <div className="container">
@@ -157,7 +188,7 @@ const ProjectGrid3 = () => {
                             </ul>                                                        
                         </div>
                     </div>
-                </div>}                
+                </div>: sinRegistros}                
                 <Footer />
             </>
         );

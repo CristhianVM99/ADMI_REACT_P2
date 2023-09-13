@@ -24,7 +24,7 @@ const About3 = (bgcolor) =>{
         queryFn: getStaticDataAbout,
     });
 
-    if(!loading_institucion && !loading_static_data){
+    if(!loading_institucion && !loading_static_data && loading_images){
 
         const {                        
             institucion_mision,
@@ -33,9 +33,12 @@ const About3 = (bgcolor) =>{
             institucion_historia,
             institucion_nombre,
             institucion_link_video_vision,
-            institucion_iniciales
+            institucion_iniciales,
+            portada
         } = institucion
 
+        const penultimoElemento = portada.slice(-2)[0];
+        const img = `${process.env.REACT_APP_ROOT_API}/InstitucionUpea/Portada/${penultimoElemento.portada_imagen}`
 
         return (
             <>
@@ -109,7 +112,7 @@ const About3 = (bgcolor) =>{
                                 </div>
                                 <div className="col-xl-6 col-lg-6 col-md-12">
                                     <div className="video-section-full-v2">
-                                        <div className="video-section-full bg-no-repeat bg-cover bg-center overlay-wraper m-b30" style={{ backgroundImage: 'url(' + images.BgOne + ')' }}>
+                                        <div className="video-section-full bg-no-repeat bg-cover bg-center overlay-wraper m-b30" style={{ backgroundImage: 'url(' + img ?? images.BgOne + ')' }}>
                                             <div className="overlay-main bg-black opacity-04" />
                                             <div className="video-section-inner">
                                                 <div className="video-section-content">

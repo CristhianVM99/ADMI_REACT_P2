@@ -1,47 +1,67 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Navigation from './Navigation';
 import { NavLink } from 'react-router-dom';
+import { getInstitucion, getStaticData } from '../../api/institucionAPI';
+import { useQuery } from '@tanstack/react-query';
 
-class Header3 extends React.Component {
+function Header3() {
 
-    constructor(props) {
-        super(props);
-        this.state = { logo: require('./../../images/logo-1.png') };
-    }
+     /* OBTENCION DE INFORMACION DEL STORE API */
+     const { isLoading: loading_institucion, data: institucion } = useQuery({
+        queryKey: ['institucion'],
+        queryFn: getInstitucion,
+    })
 
-    state = { isSearchActive: false };
+    /* OBTENCION DE INFORMACION DEL STORE STATICO */
+    const { isLoading: loading_static_data, data: staticData } = useQuery({
+        queryKey: ['staticData'],
+        queryFn: getStaticData,
+    });
 
-    handleSearchToggle = () => {
-        this.setState({ isSearchActive: !this.state.isSearchActive });
+    const [logo, setLogo] = useState(require('./../../images/logo-1.png'));
+    const [isSearchActive, setIsSearchActive] = useState(false);
+
+    const handleSearchToggle = () => {
+        setIsSearchActive(!isSearchActive);
     };
 
-    componentDidMount() {
-
+    useEffect(() => {
         const handleScroll = () => {
             const offset = window.scrollY;
-
             const stickyheader = document.querySelector('.sticky-header ');
 
             if (offset >= 100) {
                 stickyheader.classList.add('is-fixed');
                 stickyheader.classList.add('color-fill');
-
             } else {
                 stickyheader.classList.remove('is-fixed');
                 stickyheader.classList.remove('color-fill');
             }
-        }
+        };
 
         window.addEventListener('scroll', handleScroll);
 
         window.updateTopMostParent = (logopath) => {
-            this.setState({ logo: logopath });
+            setLogo(logopath);
         };
-    }
 
-    render() {
+        return () => {
+            // Limpia el evento del manejador de scroll cuando el componente se desmonta
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
 
-        const isSearchActive = this.state.isSearchActive;
+    if(!loading_institucion && !loading_static_data){
+        /* DATOS DE LA INSTITUCION */
+        const {
+            institucion_correo1,
+            institucion_celular1,
+            institucion_logo,
+            institucion_direccion,
+            institucion_facebook,
+            institucion_youtube,
+            institucion_twitter,
+        } = institucion
 
         return (
             <>
@@ -52,7 +72,7 @@ class Header3 extends React.Component {
                                 <div className="logo-header">
                                     <div className="logo-header-inner logo-header-one">
                                         <NavLink to={"./"}>
-                                            <img src={this.state.logo} alt="Inteshape" />
+                                            <img width={70} src={`${process.env.REACT_APP_ROOT_API}/InstitucionUpea/${institucion_logo}`} alt="Inteshape" />
                                         </NavLink>
                                     </div>
                                 </div>
@@ -64,18 +84,12 @@ class Header3 extends React.Component {
                                     <span className="icon-bar icon-bar-three" />
                                 </button>
                                 {/* EXTRA NAV */}
-                                <div className="extra-nav">
-                                    <div className="extra-cell">
-                                        <NavLink to={"#"} onClick={this.handleSearchToggle}> 
-                                            <i className="fa fa-search" />
-                                        </NavLink>
-                                    </div>
+                                <div className="extra-nav">                                    
                                     <div className="extra-cell">
                                         <ul className="list-unstyled social-bx text-black d-flex flex-wrap align-content-center">
-                                            <li><a href="https://www.facebook.com" target="_blank"><i className="fa fa-facebook" /></a></li>
-                                            <li><a href="https://www.instagram.com" target="_blank"><i className="fa fa-instagram" /></a></li>
-                                            <li><a href="https://twitter.com" target="_blank"><i className="fa fa-twitter" /></a></li>
-                                            <li><a href="https://www.google.com" target="_blank"><i className="fa fa-google" /></a></li>
+                                            <li><a href={institucion_facebook} target="_blank" rel="noopener noreferrer"><i className="fa fa-facebook" /></a></li>                                                                    
+                                            <li><a href={institucion_twitter} target="_blank" rel="noopener noreferrer"><i className="fa fa-twitter" /></a></li>                                                                    
+                                            <li><a href={institucion_youtube} target="_blank" rel="noopener noreferrer"><i className="fa fa-youtube" /></a></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -83,17 +97,7 @@ class Header3 extends React.Component {
                                 {/* MAIN NAVIGATION */}
                                 <div className="header-nav navbar-collapse collapse justify-content-center collapse">
                                     <Navigation />
-                                </div>
-                                {/* SITE SEARCH */}
-                                <div id="search" className={isSearchActive ? "open" : null}>
-                                    <span className="close" onClick={this.handleSearchToggle} />
-                                    <form role="search" id="searchform" action="/search" method="get" className="radius-xl">
-                                        <div className="input-group">
-                                            <input defaultValue="" name="q" type="search" placeholder="Type to search" />
-                                            <span className="input-group-btn"><button type="button" className="search-btn"><i className="fa fa-search arrow-animation" /></button></span>
-                                        </div>
-                                    </form>
-                                </div>
+                                </div>                                
                             </div>
                         </div>
                     </div>
@@ -102,7 +106,7 @@ class Header3 extends React.Component {
 
             </>
         );
-    };
+    }
 };
 
 export default Header3;

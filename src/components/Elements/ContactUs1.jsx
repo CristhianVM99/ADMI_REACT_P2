@@ -1,21 +1,57 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { getInstitucion, getStaticImages } from '../../api/institucionAPI';
+import { useQuery } from '@tanstack/react-query';
+import { Document, Page, pdfjs } from 'react-pdf';
 
-var bgimg1 = require('./../../images/background/bg-form.jpg');
-var bgimg2 = require('./../../images/background/cross-line2.png');
-var bgimg3 = require('./../../images/background/bg-map.png');
+const ContactUs1 = () =>{
 
-class ContactUs1 extends React.Component {
-    render() {
+    /* OBTENCION DE INFORMACION DEL STORE API */
+    const { isLoading: loading_institucion, data: institucion } = useQuery({
+        queryKey: ['institucion'],
+        queryFn: getInstitucion,
+    })
+
+    /* OBTENCION DE INFORMACION DEL STORE IMAGES */
+    const { isLoading: loading_images, data: images } = useQuery({
+        queryKey: ['getStaticImages'],
+        queryFn: getStaticImages,
+    });
+
+    useEffect(()=>{
+        pdfjs.GlobalWorkerOptions.workerSrc =`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+    })
+
+    var bgimg2 = require('./../../images/background/cross-line2.png');
+    var bgimg3 = require('./../../images/background/bg-map.png');
+
+    if( !loading_institucion && !loading_images){
+
+        /* DATOS DE LA INSTITUCION*/
+        const {
+            institucion_iniciales,
+            institucion_nombre,
+            portada,
+            institucion_organigrama,
+        } = institucion
+
+        const indiceAleatorio = Math.floor(Math.random() * portada.length);
+        const imagenSeleccionada = portada[indiceAleatorio].portada_imagen;
+        const img = `${process.env.REACT_APP_ROOT_API}/InstitucionUpea/Portada/${imagenSeleccionada}`;
+
+        const extension = institucion_organigrama.split('.').pop();
+
+        console.log("pdf",`${process.env.REACT_APP_ROOT_API}/InstitucionUpea/${institucion_organigrama}`);
+
         return (
             <>
-                <div className="section-full p-tb80 mobile-page-padding bg-center bg-no-repeat bg-fixed" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
+                <div className="section-full p-tb80 mobile-page-padding bg-center bg-no-repeat bg-fixed" style={{ backgroundImage: 'url(' + img ?? images.BgOne + ')', backgroundSize: 'cover' }}>
                         <div className="section-content">
                             <div className="container get-in-touch-form">
                                 {/* TITLE START */}
                                 <div className="section-head">
                                     <div className="sx-separator-outer separator-left">
                                         <div className="sx-separator bg-white bg-moving bg-repeat-x" style={{ backgroundImage: 'url(' + bgimg2 + ')' }}>
-                                            <h3 className="sep-line-one">Contact Us</h3>
+                                            <h3 className="sep-line-one">Plan de Estudio</h3>
                                         </div>
                                     </div>
                                 </div>
@@ -24,30 +60,18 @@ class ContactUs1 extends React.Component {
                                     <div className="col-lg-6 col-md-12 col-sm-12">
                                         <div className="contact-home1-left contact-home1-left-v2 shadow-lg bg-white p-a30" style={{ backgroundImage: 'url(' + bgimg3 + ')' }}>
                                             <form className="cons-contact-form2 form-transparent" method="post" action="form-handler.php">
-                                                <div className="input input-animate">
-                                                    <label htmlFor="name">Name</label>
-                                                    <input type="text" name="username" id="name" required />
-                                                    <span className="spin" />
-                                                </div>
-                                                <div className="input input-animate">
-                                                    <label htmlFor="email">Email</label>
-                                                    <input type="email" name="email" id="email" required />
-                                                    <span className="spin" />
-                                                </div>
-                                                <div className="input input-animate">
-                                                    <label htmlFor="Phone">Phone</label>
-                                                    <input type="text" name="phone" id="Phone" required />
-                                                    <span className="spin" />
-                                                </div>
-                                                <div className="input input-animate">
-                                                    <label htmlFor="message">Textarea</label>
-                                                    <textarea name="message" id="message" required defaultValue={""} />
-                                                    <span className="spin" />
-                                                </div>
+                                                <div>
+                                                {extension === "pdf" ?
+                                                <Document className="pdf" file={`${process.env.REACT_APP_ROOT_API}/InstitucionUpea/${institucion_organigrama}`} > 
+                                                <Page pageNumber={1} height={600} /> 
+                                                </Document> : 
+                                                <img src={`${process.env.REACT_APP_ROOT_API}/InstitucionUpea/${institucion_organigrama}`} alt="" style={{ height: '400px'}}/>}                                                   
+                                                </div>                                                
                                                 <div className="text-left p-t10">
-                                                    <button type="submit" className="site-button-secondry btn-half ">
-                                                        <span>  Submit Now</span>
-                                                    </button>
+                                                    <p>{institucion_nombre} | {institucion_iniciales}</p>                                                    
+                                                    <a className='site-button-secondry btn-half' href={`${process.env.REACT_APP_ROOT_API}/InstitucionUpea/${institucion_organigrama}`} target='_blank' rel="noopener noreferrer">
+                                                        <span> Descargar </span>
+                                                    </a>                                                                                                        
                                                 </div>
                                             </form>
                                         </div>

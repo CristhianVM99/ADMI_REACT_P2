@@ -41,13 +41,14 @@ const Navigation = () => {
     /* RENDERIZADO DEL COMPONENTE NAVIGATION */
     if (!loading_links_externos) {
 
-        /* FILTRADO DE LINKS QUE TENGAN EL TIPO 'KARDEX' */
-        const links_filter = links.filter((e) => e.ei_tipo === TIPO_LINK.KARDEX)
+    /* FILTRADO DE LINKS QUE TENGAN EL TIPO 'KARDEX' */
+    const links_filter = links.filter((e) => e.ei_tipo === TIPO_LINK.KARDEX)
 
         /* COMPONENTE */
         return (
             <>
                 <ul className="nav navbar-nav">
+                    <li><NavLink to={"/"}>Inicio</NavLink></li>
                     <li className="active">
                         {/* LINKS PARA LA INFORMACION DE LA CARRERA */}
                         <NavLink to={""}>Nosotros</NavLink>
@@ -98,19 +99,19 @@ const Navigation = () => {
                             <li><NavLink to={`/recursos?tipo=${TIPOS.VIDEOS}`}>Videos</NavLink></li>
                         </ul>
                     </li>
+                    {links_filter.length  > 0 ? (
                     <li>
                         {/* LINKS PROPIOS DE LA INSTITUCION */}
-                        <NavLink to={""}>Kardex</NavLink>
-                        {links_filter ? (
+                        <NavLink to={""}>Kardex</NavLink>                        
                             <ul className="sub-menu">
                                 {links_filter.map((item, index) => (
                                     <li key={index}>
                                         <a href={item.ei_link} target='_blank' rel="noopener noreferrer">{item.ei_nombre}</a>
                                     </li>
                                 ))}
-                            </ul>
-                        ) : null}
+                            </ul>                        
                     </li>
+                    ) : null}
                     <li>
                         {/* LINKS DE RECURSOS DE LA UNIVERSIDAD */}
                         <NavLink to={""}>Biblioteca</NavLink>

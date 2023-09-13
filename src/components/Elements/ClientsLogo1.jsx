@@ -41,7 +41,7 @@ const ClientsLogo1 = () =>{
                             </div>
                         </div>
                         {/* TITLE END */}
-                        <div className="section-content">
+                        {links_filter.length > 0 ? <div className="section-content">
                             <div className="client-grid m-b40">
                                 <div className="row justify-content-center">
                                     {links_filter.map((item, index) => (
@@ -56,7 +56,7 @@ const ClientsLogo1 = () =>{
                                     ))}
                                 </div>
                             </div>
-                        </div>
+                        </div>: <div style={{textAlign: 'center', fontSize:'3em', padding: '20px', background: 'var(--color-primario)',color:'#fff'}}>Sin Registros</div> }
                     </div>
                     <div className="hilite-title text-left p-l50 text-uppercase">
                         <strong>Enlaces</strong>

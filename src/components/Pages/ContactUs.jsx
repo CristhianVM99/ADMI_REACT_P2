@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Header4 from './../Common/Header4';
 import Footer from './../Common/Footer';
 import Banner from './../Elements/Banner';
@@ -36,6 +36,33 @@ const ContactUs = () => {
         },
         zoom: 12
     }
+
+    useEffect(()=>{
+        // Establecer colores si los datos están disponibles
+        if (!loading_institucion) {
+            const { colorinstitucion , institucion_logo, institucion_iniciales, institucion_nombre } = institucion;
+            document.documentElement.style.setProperty(
+              "--color-primario",
+              colorinstitucion[0].color_primario
+            );
+            document.documentElement.style.setProperty(
+              "--color-secundario",
+              colorinstitucion[0].color_secundario
+            );
+            document.documentElement.style.setProperty(
+              "--color-terciario",
+              colorinstitucion[0].color_terciario
+            );
+            // Establece el ícono en el encabezado
+            const link = document.querySelector("link[rel~='icon']") || document.createElement('link');
+            link.type = 'image/x-icon';
+            link.rel = 'icon';
+            link.href = `${process.env.REACT_APP_ROOT_API}/InstitucionUpea/${institucion_logo}`;
+            document.getElementsByTagName('head')[0].appendChild(link);
+            document.title =  institucion_iniciales+" | "+institucion_nombre 
+          }
+    }, [loading_institucion, institucion])
+
     if(!loading_institucion && !loading_static_data && !loading_images){
         
         const {            
@@ -47,7 +74,8 @@ const ContactUs = () => {
             institucion_correo2,
             institucion_direccion,    
             institucion_api_google_map,
-            institucion_iniciales        
+            institucion_iniciales,     
+            portada
         } = institucion
 
         const {
@@ -55,11 +83,19 @@ const ContactUs = () => {
             txt_content_banner_contact,            
         } = staticData
 
+        const indiceAleatorio = Math.floor(Math.random() * portada.length);
+        const imagenSeleccionada = portada[indiceAleatorio].portada_imagen;
+        const img = `${process.env.REACT_APP_ROOT_API}/InstitucionUpea/Portada/${imagenSeleccionada}`;
+
+        const indiceAleatorio2 = Math.floor(Math.random() * portada.length);
+        const imagenSeleccionada2 = portada[indiceAleatorio2].portada_imagen;
+        const img2 = `${process.env.REACT_APP_ROOT_API}/InstitucionUpea/Portada/${imagenSeleccionada2}`;        
+
         return (
             <>
                 <Header4 />
                 <div className="page-content">
-                    <Banner title={txt_content_contact} pagename={txt_content_contact} description={txt_content_banner_contact} bgimage={images.BgFour}/>
+                    <Banner title={txt_content_contact} pagename={txt_content_contact} description={txt_content_banner_contact} bgimage={img ?? images.BgFour}/>
                     {/* SECTION CONTENTG START */}
                     <div className="section-full p-tb80 inner-page-padding">
                         {/* LOCATION BLOCK*/}
@@ -79,7 +115,7 @@ const ContactUs = () => {
                                                         </div>
                                                     </div>
                                                 </div>   
-                                                <img src={images.BgOne} alt=""/>                                            
+                                                <img src={ img2 ?? images.BgOne} alt=""/>                                            
                                             </div>
                                         </form>
                                     </div>

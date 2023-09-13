@@ -10,9 +10,6 @@ import { getInstitucion, getServicios, getOfertasAcademicas, getPublicaciones, g
 import { useQuery } from '@tanstack/react-query';
 import { TIPOS } from '../../types/types';
 
-var bnrimg = require('./../../images/banner/4.jpg');
-var bgimg1 = require('./../../images/background/cross-line2.png');
-
 const PostRightSidebar = () =>{   
 
     /* OBTENCION DE INFORMACION DEL STORE IMAGES */
@@ -146,25 +143,7 @@ const PostRightSidebar = () =>{
         ];
         const mes = fecha.getMonth(); // Obtiene el mes (0-11)
         return meses[mes];
-    } 
-
-    /* Obtener el último de la coleccion */
-    function obtenerUltimoElemento(coleccion) {
-        if(coleccion.length >= 2){
-            return coleccion[coleccion.length - 1];
-        }else{
-            return null
-        }
-    }
-
-    /* Obtener el penúltimo de la coleccion */
-    function obtenerPenultimoElemento(coleccion) {
-        if (coleccion.length >= 2) {
-          return coleccion[coleccion.length - 2];
-        } else {
-          return null; // No hay suficientes servicios para obtener el penúltimo
-        }
-    }
+    }     
 
     useEffect(() => {
 
@@ -186,7 +165,31 @@ const PostRightSidebar = () =>{
         }
     
         loadScript('./assets/js/custom.js');
-      }, []);      
+
+        // Establecer colores si los datos están disponibles
+        if (!loading_institucion) {
+            const { colorinstitucion, institucion_logo, institucion_iniciales, institucion_nombre } = institucion;
+            document.documentElement.style.setProperty(
+              "--color-primario",
+              colorinstitucion[0].color_primario
+            );
+            document.documentElement.style.setProperty(
+              "--color-secundario",
+              colorinstitucion[0].color_secundario
+            );
+            document.documentElement.style.setProperty(
+              "--color-terciario",
+              colorinstitucion[0].color_terciario
+            );
+            // Establece el ícono en el encabezado
+            const link = document.querySelector("link[rel~='icon']") || document.createElement('link');
+            link.type = 'image/x-icon';
+            link.rel = 'icon';
+            link.href = `${process.env.REACT_APP_ROOT_API}/InstitucionUpea/${institucion_logo}`;
+            document.getElementsByTagName('head')[0].appendChild(link);
+            document.title =  institucion_iniciales+" | "+institucion_nombre 
+          }
+      }, [loading_institucion, institucion]);      
 
     /* COMPONENTE PARA SERVICIOS */      
       if (
@@ -196,21 +199,7 @@ const PostRightSidebar = () =>{
         !loading_static_data_key &&
         category === TIPOS.SERVICIOS
         ) 
-        {
-
-        const secretKey = staticDataKey.CLAVE_ENCRYPTACION;        
-
-        /* Función para encriptar un ID */
-        function encryptId(id) {
-            const encrypted = CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
-            return encrypted;
-        }  
-
-        // Función para desencriptar un ID
-        function decryptId(encryptedId) {
-            const decrypted = CryptoJS.AES.decrypt(encryptedId, secretKey).toString(CryptoJS.enc.Utf8);
-            return parseInt(decrypted, 10);
-        }
+        {        
 
         /* DATOS OBTENIDOS DESDE LA STORE API */
         const {
@@ -220,22 +209,21 @@ const PostRightSidebar = () =>{
 
         /* DATOS OBTENIDOS DESDE LA STORE STATICA*/
         const {
-            institucion_iniciales,
-            institucion_nombre
+            institucion_nombre,
+            portada
         } = institucion
 
         const item = servicios.find((e) => e.serv_id === parseInt(id,10)) 
         
-        console.log("id",id);
-        console.log("item",item);                   
-        const ultimo = obtenerUltimoElemento(servicios)
-        const penultimo = obtenerPenultimoElemento(servicios)        
+        const indiceAleatorio = Math.floor(Math.random() * portada.length);
+        const imagenSeleccionada = portada[indiceAleatorio].portada_imagen;
+        const img = `${process.env.REACT_APP_ROOT_API}/InstitucionUpea/Portada/${imagenSeleccionada}`;
 
         return (
             <>
                 <Header4 />
                 {item && <div className="page-content ">
-                    <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={images.BgOne} />
+                    <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={img ?? images.BgOne} />
                     {/* SECTION CONTENT START */}
                     <div className="section-full p-tb80 inner-page-padding">
                         <div className="container">
@@ -252,8 +240,8 @@ const PostRightSidebar = () =>{
                                             <div className="sx-post-meta  m-t20">
                                                 <ul>
                                                     <li className="post-date"><strong>{formatearFecha(item.serv_registro)}</strong> </li>
-                                                    <li className="post-author"><NavLink to={"/blog-masonry"}><span>{institucion_nombre}</span></NavLink> </li>
-                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TIPOS.SERVICIOS}</span></NavLink> </li>
+                                                    <li className="post-author"><NavLink to={"/"}><span>{institucion_nombre}</span></NavLink> </li>
+                                                    <li className="post-category"><NavLink to={`/recursos?tipo=${TIPOS.SERVICIOS}`}><span>{TIPOS.SERVICIOS}</span></NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
@@ -288,21 +276,7 @@ const PostRightSidebar = () =>{
         !loading_static_data_key &&
         category === TIPOS.OFERTAS_ACADEMICAS
         ) 
-        {
-
-            const secretKey = staticDataKey.CLAVE_ENCRYPTACION;        
-
-            /* Función para encriptar un ID */
-            function encryptId(id) {
-                const encrypted = CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
-                return encrypted;
-            }  
-
-            // Función para desencriptar un ID
-            function decryptId(encryptedId) {
-                const decrypted = CryptoJS.AES.decrypt(encryptedId, secretKey).toString(CryptoJS.enc.Utf8);
-                return parseInt(decrypted, 10);
-            }
+        {            
     
             /* DATOS OBTENIDOS DESDE LA STORE API */
             const {
@@ -313,17 +287,22 @@ const PostRightSidebar = () =>{
             /* DATOS OBTENIDOS DESDE LA STORE STATICA*/
             const {
                 institucion_iniciales,
-                institucion_nombre
+                institucion_nombre,
+                portada
             } = institucion
     
-            const item = ofertas.find((e) => e.ofertas_id === parseInt(id,10))                                                     
+            const item = ofertas.find((e) => e.ofertas_id === parseInt(id,10))       
+            
+            const indiceAleatorio = Math.floor(Math.random() * portada.length);
+            const imagenSeleccionada = portada[indiceAleatorio].portada_imagen;
+            const img = `${process.env.REACT_APP_ROOT_API}/InstitucionUpea/Portada/${imagenSeleccionada}`;
 
         return (
             <>
                 <Header4 />
                 {item ? (
                     <div className="page-content ">
-                    <Banner title={"OFERTAS ACADEMICAS"} pagename={"OFERTAS ACADEMICAS"} description={txt_content_banner_detail} bgimage={images.BgOne} />
+                    <Banner title={"OFERTAS ACADEMICAS"} pagename={"OFERTAS ACADEMICAS"} description={txt_content_banner_detail} bgimage={img ?? images.BgOne} />
                     {/* SECTION CONTENT START */}
                     <div className="section-full p-tb80 inner-page-padding">
                         <div className="container">
@@ -340,8 +319,8 @@ const PostRightSidebar = () =>{
                                             <div className="sx-post-meta  m-t20">
                                                 <ul>
                                                     <li className="post-date"><strong>{formatearFecha(item.ofertas_fecha_creacion)}</strong></li>
-                                                    <li className="post-author"><NavLink to={"/blog-masonry"}><span>{institucion_nombre}</span></NavLink> </li>
-                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{"OFERTAS ACADEMICAS"}</span></NavLink> </li>
+                                                    <li className="post-author"><NavLink to={"/"}><span>{institucion_nombre}</span></NavLink> </li>
+                                                    <li className="post-category"><NavLink to={`/recursos?tipo=${TIPOS.OFERTAS_ACADEMICAS}`}><span>{"OFERTAS ACADEMICAS"}</span></NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
@@ -391,16 +370,21 @@ const PostRightSidebar = () =>{
         /* DATOS OBTENIDOS DESDE LA STORE STATICA*/
         const {
             institucion_iniciales,
-            institucion_nombre
+            institucion_nombre,
+            portada
         } = institucion
 
         const item = publicaciones.find((e) => e.publicaciones_id === parseInt(id,10))  
+
+        const indiceAleatorio = Math.floor(Math.random() * portada.length);
+        const imagenSeleccionada = portada[indiceAleatorio].portada_imagen;
+        const img = `${process.env.REACT_APP_ROOT_API}/InstitucionUpea/Portada/${imagenSeleccionada}`;
 
         return (
             <>
                 <Header4 />
                 <div className="page-content ">
-                <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={images.BgOne} />
+                <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={img ?? images.BgOne} />
                     {/* SECTION CONTENT START */}
                     <div className="section-full p-tb80 inner-page-padding">
                         <div className="container">
@@ -417,8 +401,8 @@ const PostRightSidebar = () =>{
                                             <div className="sx-post-meta  m-t20">
                                                 <ul>
                                                     <li className="post-date"><strong>{formatearFecha(item.publicaciones_fecha)}</strong></li>
-                                                    <li className="post-author"><NavLink to={"/blog-masonry"}><span>{institucion_nombre}</span></NavLink> </li>
-                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TIPOS.PUBLICACIONES}</span></NavLink> </li>
+                                                    <li className="post-author"><NavLink to={"/"}><span>{institucion_nombre}</span></NavLink> </li>
+                                                    <li className="post-category"><NavLink to={`/recursos?tipo=${TIPOS.PUBLICACIONES}`}><span>{TIPOS.PUBLICACIONES}</span></NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
@@ -465,16 +449,21 @@ const PostRightSidebar = () =>{
         /* DATOS OBTENIDOS DESDE LA STORE STATICA*/
         const {
             institucion_iniciales,
-            institucion_nombre
+            institucion_nombre,
+            portada
         } = institucion
 
         const item = gacetas.find((e) => e.gaceta_id === parseInt(id,10)) 
+
+        const indiceAleatorio = Math.floor(Math.random() * portada.length);
+        const imagenSeleccionada = portada[indiceAleatorio].portada_imagen;
+        const img = `${process.env.REACT_APP_ROOT_API}/InstitucionUpea/Portada/${imagenSeleccionada}`;
 
         return (
             <>
                 <Header4 />
                 <div className="page-content ">
-                <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={images.BgOne} />
+                <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={img ?? images.BgOne} />
                     {/* SECTION CONTENT START */}
                     <div className="section-full p-tb80 inner-page-padding">
                         <div className="container">
@@ -493,8 +482,8 @@ const PostRightSidebar = () =>{
                                             <div className="sx-post-meta  m-t20">
                                                 <ul>
                                                     <li className="post-date"><strong>{formatearFecha(item.gaceta_fecha)}</strong> </li>
-                                                    <li className="post-author"><NavLink to={"/blog-masonry"}><span>{institucion_nombre}</span></NavLink> </li>
-                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TIPOS.GACETAS}</span></NavLink> </li>
+                                                    <li className="post-author"><NavLink to={"/"}><span>{institucion_nombre}</span></NavLink> </li>
+                                                    <li className="post-category"><NavLink to={`/recursos?tipo=${TIPOS.GACETAS}`}><span>{TIPOS.GACETAS}</span></NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
@@ -538,16 +527,21 @@ const PostRightSidebar = () =>{
         /* DATOS OBTENIDOS DESDE LA STORE STATICA*/
         const {
             institucion_iniciales,
-            institucion_nombre
+            institucion_nombre,
+            portada
         } = institucion
 
         const item = eventos.find((e) => e.evento_id === parseInt(id,10)) 
+
+        const indiceAleatorio = Math.floor(Math.random() * portada.length);
+        const imagenSeleccionada = portada[indiceAleatorio].portada_imagen;
+        const img = `${process.env.REACT_APP_ROOT_API}/InstitucionUpea/Portada/${imagenSeleccionada}`;
 
         return (
             <>
                 <Header4 />
                 <div className="page-content ">
-                <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={images.BgOne} />
+                <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={img ?? images.BgOne} />
                     {/* SECTION CONTENT START */}
                     <div className="section-full p-tb80 inner-page-padding">
                         <div className="container">
@@ -564,8 +558,8 @@ const PostRightSidebar = () =>{
                                             <div className="sx-post-meta  m-t20">
                                                 <ul>
                                                     <li className="post-date"><strong>{formatearFecha(item.evento_fecha)}</strong> </li>
-                                                    <li className="post-author"><NavLink to={"/blog-masonry"}><span>{institucion_nombre}</span></NavLink> </li>
-                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TIPOS.EVENTOS}</span></NavLink> </li>
+                                                    <li className="post-author"><NavLink to={"/"}><span>{institucion_nombre}</span></NavLink> </li>
+                                                    <li className="post-category"><NavLink to={`/recursos?tipo=${TIPOS.EVENTOS}`}><span>{TIPOS.EVENTOS}</span></NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
@@ -612,16 +606,21 @@ const PostRightSidebar = () =>{
         /* DATOS OBTENIDOS DESDE LA STORE STATICA*/
         const {
             institucion_iniciales,
-            institucion_nombre
+            institucion_nombre,
+            portada
         } = institucion
 
         const item = videos.find((e) => e.video_id === parseInt(id,10)) 
+
+        const indiceAleatorio = Math.floor(Math.random() * portada.length);
+        const imagenSeleccionada = portada[indiceAleatorio].portada_imagen;
+        const img = `${process.env.REACT_APP_ROOT_API}/InstitucionUpea/Portada/${imagenSeleccionada}`;
 
         return (
             <>
                 <Header4 />
                 <div className="page-content ">
-                <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={images.BgOne} />
+                <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={img ?? images.BgOne} />
                     {/* SECTION CONTENT START */}
                     <div className="section-full p-tb80 inner-page-padding">
                         <div className="container">
@@ -644,8 +643,8 @@ const PostRightSidebar = () =>{
                                             </div>
                                             <div className="sx-post-meta  m-t20">
                                                 <ul>
-                                                    <li className="post-author"><NavLink to={"/blog-masonry"}><span>{institucion_nombre}</span></NavLink> </li>
-                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TIPOS.VIDEOS}</span></NavLink> </li>
+                                                    <li className="post-author"><NavLink to={"/"}><span>{institucion_nombre}</span></NavLink> </li>
+                                                    <li className="post-category"><NavLink to={`/recursos?tipo=${TIPOS.VIDEOS}`}><span>{TIPOS.VIDEOS}</span></NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
@@ -696,16 +695,21 @@ const PostRightSidebar = () =>{
         /* DATOS OBTENIDOS DESDE LA STORE STATICA*/
         const {
             institucion_iniciales,
-            institucion_nombre
+            institucion_nombre,
+            portada
         } = institucion
 
         const item = convocatorias.find((e) => e.idconvocatorias === parseInt(id,10)) 
+        
+        const indiceAleatorio = Math.floor(Math.random() * portada.length);
+        const imagenSeleccionada = portada[indiceAleatorio].portada_imagen;
+        const img = `${process.env.REACT_APP_ROOT_API}/InstitucionUpea/Portada/${imagenSeleccionada}`;
 
         return (
             <>
                 <Header4 />
                 <div className="page-content ">
-                <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={images.BgOne} />
+                <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={img ?? images.BgOne} />
                     {/* SECTION CONTENT START */}
                     <div className="section-full p-tb80 inner-page-padding">
                         <div className="container">
@@ -722,8 +726,8 @@ const PostRightSidebar = () =>{
                                             <div className="sx-post-meta  m-t20">
                                                 <ul>
                                                     <li className="post-date"><strong>{formatearFecha(item.con_fecha_inicio)}</strong> </li>
-                                                    <li className="post-author"><NavLink to={"/blog-masonry"}><span>{institucion_nombre}</span></NavLink> </li>
-                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{category}</span></NavLink> </li>
+                                                    <li className="post-author"><NavLink to={"/"}><span>{institucion_nombre}</span></NavLink> </li>
+                                                    <li className="post-category"><NavLink to={`/recursos?tipo=${category}`}><span>{category}</span></NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
@@ -773,16 +777,21 @@ const PostRightSidebar = () =>{
         /* DATOS OBTENIDOS DESDE LA STORE STATICA*/
         const {
             institucion_iniciales,
-            institucion_nombre
+            institucion_nombre,
+            portada
         } = institucion
 
         const item = cursos.find((e) => e.iddetalle_cursos_academicos === parseInt(id,10))
+
+        const indiceAleatorio = Math.floor(Math.random() * portada.length);
+        const imagenSeleccionada = portada[indiceAleatorio].portada_imagen;
+        const img = `${process.env.REACT_APP_ROOT_API}/InstitucionUpea/Portada/${imagenSeleccionada}`;
 
         return (
             <>
                 <Header4 />
                 <div className="page-content ">
-                <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={images.BgOne} />
+                <Banner title={category} pagename={category} description={txt_content_banner_detail} bgimage={img ?? images.BgOne} />
                     {/* SECTION CONTENT START */}
                     <div className="section-full p-tb80 inner-page-padding">
                         <div className="container">
@@ -799,8 +808,8 @@ const PostRightSidebar = () =>{
                                             <div className="sx-post-meta  m-t20">
                                                 <ul>
                                                 <li className="post-date"><strong>{formatearFecha(item.det_fecha_ini)}</strong> </li>
-                                                    <li className="post-author"><NavLink to={"/blog-masonry"}><span>{institucion_nombre}</span></NavLink> </li>
-                                                    <li className="post-category"><NavLink to={"/blog-masonry"}><span>{TIPOS.VIDEOS}</span></NavLink> </li>
+                                                    <li className="post-author"><NavLink to={"/"}><span>{institucion_nombre}</span></NavLink> </li>
+                                                    <li className="post-category"><NavLink to={`/recursos?tipo=${category}`}><span>{category}</span></NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">

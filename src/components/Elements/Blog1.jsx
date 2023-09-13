@@ -32,27 +32,28 @@ const Blog1 = ({ tipo }) => {
 
     var bgimg1 = require('./../../images/background/cross-line2.png');       
 
-      /* FUNCION PARA OBTENER EL DIA DE UNA FECHA  */
-        function obtenerDiaDeFecha(fechaISO) {
-            const fecha = new Date(fechaISO);
-            const dia = fecha.getDate();
-            return dia;
-        }
+    /* FUNCION PARA OBTENER EL DIA DE UNA FECHA  */
+    function obtenerDiaDeFecha(fechaISO) {
+        const fecha = new Date(fechaISO);
+        const dia = fecha.getDate();
+        return dia;
+    }
+    /* FUNCION PARA OBTENER EL MES DE UNA FECHA */
+    function obtenerMesDeFecha(fechaISO) {
+        const mesesDelAnio = [
+            "ENE", "FEB", "MAR", "ABR",
+            "MAY", "JUN", "JUL", "AGO",
+            "SEP", "OCT", "NOV", "DIC"
+        ];
+    
+        const fecha = new Date(fechaISO);
+        const mesIndex = fecha.getMonth();
+        const mesReducido = mesesDelAnio[mesIndex];
+    
+        return mesReducido;
+    }
 
-        /* FUNCION PARA OBTENER EL MES DE UNA FECHA */
-        function obtenerMesDeFecha(fechaISO) {
-            const mesesDelAnio = [
-                "ENE", "FEB", "MAR", "ABR",
-                "MAY", "JUN", "JUL", "AGO",
-                "SEP", "OCT", "NOV", "DIC"
-            ];
-        
-            const fecha = new Date(fechaISO);
-            const mesIndex = fecha.getMonth();
-            const mesReducido = mesesDelAnio[mesIndex];
-        
-            return mesReducido;
-        }
+    const sinRegistros = (<div style={{textAlign: 'center', fontSize:'3em', padding: '20px', background: 'var(--color-primario)',color: '#fff'}}>Sin Registros</div>)
 
     /* COMPONENTE PARA CONVOCATORIAS - COMUNICADOS - AVISOS */
     if(!loading_institucion && !loading_static_data && !loading_convocatorias && tipo===TIPOS.CONVOCATORIAS){
@@ -83,12 +84,14 @@ const Blog1 = ({ tipo }) => {
             lastConvocatoria,
             lastComunicado,            
             lastAviso,            
-          ]
+        ].filter((item) => item !== undefined)
+
+        console.log("convocatoria",ConvocatoriasAndComunicadosAndAvisos);
 
         /* COMPONENTE PARA CONVOCATORIAS, COMUNICADOS Y AVISOS */
         return (
             <>
-                {convocatorias ? (<div className="section-full mobile-page-padding bg-white p-t80 p-b50 mobile-page-padding">
+                {ConvocatoriasAndComunicadosAndAvisos.length > 0 ? (<div className="section-full mobile-page-padding bg-white p-t80 p-b50 mobile-page-padding">
                     <div className="container">
                         {/* TITLE START */}
                         <div className="section-head">
@@ -106,21 +109,21 @@ const Blog1 = ({ tipo }) => {
                                 <div className="col-lg-4 col-md-6 col-sm-12" key={index}>
                                 <div className="blog-post blog-grid date-style-2">
                                         <div className="sx-post-media sx-img-effect img-reflection">
-                                            <NavLink to={`/post-right-sidebar?id=${item.idconvocatorias}&tipo=${item.tipo_conv_comun.tipo_conv_comun_titulo}`}><img src={`${process.env.REACT_APP_ROOT_API}/Convocatorias/${item.con_foto_portada}`} alt="" style={{height: '400px'}}/></NavLink>
+                                            <NavLink to={`/detalle?id=${item.idconvocatorias}&tipo=${item.tipo_conv_comun.tipo_conv_comun_titulo}`}><img src={`${process.env.REACT_APP_ROOT_API}/Convocatorias/${item.con_foto_portada}`} alt="" style={{height: '400px'}}/></NavLink>
                                         </div>
                                         <div className="sx-post-info p-t30">
                                             <div className="sx-post-meta ">
                                                 <ul>
                                                     <li className="post-date"><strong>{obtenerDiaDeFecha(item.con_fecha_inicio)}</strong> <span>{obtenerMesDeFecha(item.con_fecha_inicio)}</span> </li>
-                                                    <li className="post-author"><NavLink to={`/post-right-sidebar?id=${item.idconvocatorias}&tipo=${item.tipo_conv_comun.tipo_conv_comun_titulo}`}><span>{item.tipo_conv_comun.tipo_conv_comun_titulo}</span></NavLink> </li>
-                                                    <li className="post-comment"> <NavLink to={`/post-right-sidebar?id=${item.idconvocatorias}&tipo=${item.tipo_conv_comun.tipo_conv_comun_titulo}`}>{ institucion_iniciales }</NavLink> </li>
+                                                    <li className="post-author"><NavLink to={`/detalle?id=${item.idconvocatorias}&tipo=${item.tipo_conv_comun.tipo_conv_comun_titulo}`}><span>{item.tipo_conv_comun.tipo_conv_comun_titulo}</span></NavLink> </li>
+                                                    <li className="post-comment"> <NavLink to={`/detalle?id=${item.idconvocatorias}&tipo=${item.tipo_conv_comun.tipo_conv_comun_titulo}`}>{ institucion_iniciales }</NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
-                                                <h4 className="post-title"><NavLink to={`/post-right-sidebar?id=${item.idconvocatorias}&tipo=${item.tipo_conv_comun.tipo_conv_comun_titulo}`}>{item.con_titulo}</NavLink></h4>
+                                                <h4 className="post-title"><NavLink to={`/detalle?id=${item.idconvocatorias}&tipo=${item.tipo_conv_comun.tipo_conv_comun_titulo}`}>{item.con_titulo}</NavLink></h4>
                                             </div>
                                             <div className="sx-post-readmore">
-                                                <NavLink to={`/post-right-sidebar?id=${item.idconvocatorias}&tipo=${item.tipo_conv_comun.tipo_conv_comun_titulo}`} title="READ MORE" rel="bookmark" className="site-button-link">{ txt_content_btn }</NavLink>
+                                                <NavLink to={`/detalle?id=${item.idconvocatorias}&tipo=${item.tipo_conv_comun.tipo_conv_comun_titulo}`} title="READ MORE" rel="bookmark" className="site-button-link">{ txt_content_btn }</NavLink>
                                             </div>
                                         </div>
                                     </div>
@@ -132,7 +135,7 @@ const Blog1 = ({ tipo }) => {
                     <div className="hilite-title text-left p-l50 text-uppercase">
                         <strong>{ institucion_iniciales }</strong>
                     </div>
-                </div>) : <div> Sin Registros </div>}
+                </div>) : sinRegistros}
             </>
         );
     }         
@@ -162,12 +165,12 @@ const Blog1 = ({ tipo }) => {
         const CursosAndSeminarios = [
           lastCurso,
           lastSeminario,          
-        ]
+        ].filter((item) => item !== undefined)
             
         /* COMPONENTE PARA CURSOS Y SEMINARIOS */
         return (
             <>
-                {cursos ? (<div className="section-full mobile-page-padding bg-white p-t80 p-b50 mobile-page-padding">
+                {CursosAndSeminarios.length > 0 ? (<div className="section-full mobile-page-padding bg-white p-t80 p-b50 mobile-page-padding">
                     <div className="container">
                         {/* TITLE START */}
                         <div className="section-head">
@@ -185,21 +188,21 @@ const Blog1 = ({ tipo }) => {
                                 <div className="col-lg-4 col-md-6 col-sm-12" key={index}>
                                 <div className="blog-post blog-grid date-style-2">
                                         <div className="sx-post-media sx-img-effect img-reflection">
-                                            <NavLink to={`/post-right-sidebar?id=${item.iddetalle_cursos_academicos}&tipo=${item.tipo_curso_otro.tipo_conv_curso_nombre}`}><img src={`${process.env.REACT_APP_ROOT_API}/Cursos/${item.det_img_portada}`} alt="" style={{height: '400px'}}/></NavLink>
+                                            <NavLink to={`/detalle?id=${item.iddetalle_cursos_academicos}&tipo=${item.tipo_curso_otro.tipo_conv_curso_nombre}`}><img src={`${process.env.REACT_APP_ROOT_API}/Cursos/${item.det_img_portada}`} alt="" style={{height: '400px'}}/></NavLink>
                                         </div>
                                         <div className="sx-post-info p-t30">
                                             <div className="sx-post-meta ">
                                                 <ul>
                                                     <li className="post-date"><strong>{obtenerDiaDeFecha(item.det_fecha_ini)}</strong> <span>{obtenerMesDeFecha(item.det_fecha_ini)}</span> </li>
-                                                    <li className="post-author"><NavLink to={`/post-right-sidebar?id=${item.iddetalle_cursos_academicos}&tipo=${item.tipo_curso_otro.tipo_conv_curso_nombre}`}><span>{item.tipo_curso_otro.tipo_conv_curso_nombre}</span></NavLink> </li>
-                                                    <li className="post-comment"> <NavLink to={`/post-right-sidebar?id=${item.iddetalle_cursos_academicos}&tipo=${item.tipo_curso_otro.tipo_conv_curso_nombre}`}>{ institucion_iniciales }</NavLink> </li>
+                                                    <li className="post-author"><NavLink to={`/detalle?id=${item.iddetalle_cursos_academicos}&tipo=${item.tipo_curso_otro.tipo_conv_curso_nombre}`}><span>{item.tipo_curso_otro.tipo_conv_curso_nombre}</span></NavLink> </li>
+                                                    <li className="post-comment"> <NavLink to={`/detalle?id=${item.iddetalle_cursos_academicos}&tipo=${item.tipo_curso_otro.tipo_conv_curso_nombre}`}>{ institucion_iniciales }</NavLink> </li>
                                                 </ul>
                                             </div>
                                             <div className="sx-post-title ">
-                                                <h4 className="post-title"><NavLink to={`/post-right-sidebar?id=${item.iddetalle_cursos_academicos}&tipo=${item.tipo_curso_otro.tipo_conv_curso_nombre}`}>{item.det_titulo}</NavLink></h4>
+                                                <h4 className="post-title"><NavLink to={`/detalle?id=${item.iddetalle_cursos_academicos}&tipo=${item.tipo_curso_otro.tipo_conv_curso_nombre}`}>{item.det_titulo}</NavLink></h4>
                                             </div>
                                             <div className="sx-post-readmore">
-                                                <NavLink to={`/post-right-sidebar?id=${item.iddetalle_cursos_academicos}&tipo=${item.tipo_curso_otro.tipo_conv_curso_nombre}`} title="READ MORE" rel="bookmark" className="site-button-link">{ txt_content_btn }</NavLink>
+                                                <NavLink to={`/detalle?id=${item.iddetalle_cursos_academicos}&tipo=${item.tipo_curso_otro.tipo_conv_curso_nombre}`} title="READ MORE" rel="bookmark" className="site-button-link">{ txt_content_btn }</NavLink>
                                             </div>
                                         </div>
                                     </div>
@@ -211,7 +214,7 @@ const Blog1 = ({ tipo }) => {
                     <div className="hilite-title text-left p-l50 text-uppercase">
                         <strong>{ institucion_iniciales }</strong>
                     </div>
-                </div>) : <div>Sin Registros</div>}
+                </div>) : sinRegistros}
             </>
         );
     }

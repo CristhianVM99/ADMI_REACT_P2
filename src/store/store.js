@@ -53,6 +53,10 @@ export const dataInstitucion = {
     txt_content_banner_institucion: 'La UPEA es una universidad que se caracteriza por su compromiso con la justicia social y la lucha por los derechos humanos.',
 }
 
+export const dataVerMas= {
+    txt_content_banner_ver_mas: 'La UPEA es una universidad que se caracteriza por su compromiso con la justicia social y la lucha por los derechos humanos.',
+}
+
 export const dataKey = {
     CLAVE_ENCRYPTACION: 'UniversidadPublicaDeElAlto',
 }
@@ -62,6 +66,17 @@ export const dataImagesStatic = {
     BgTwo : '/assets/images/bg1.jpg',
     BgThree : '/assets/images/bg2.png',
     BgFour : '/assets/images/bg3.jpg',    
+    BgConvocatorias: '/assets/images/convocatorias.jpg',    
+    BgComunicados: '/assets/images/comunicados.jpg',    
+    BgAvisos: '/assets/images/avisos.png',    
+    BgCursos: '/assets/images/cursos.jpg',    
+    BgSeminarios: '/assets/images/seminarios.jpg',    
+    BgServicios: '/assets/images/servicios.jpg',    
+    BgOfertasAcademicas: '/assets/images/ofertasacademicas.jpg',    
+    BgPublicaciones: '/assets/images/publicaciones.jpg',    
+    BgGacetas: '/assets/images/gacetas.jpg',    
+    BgEventos: '/assets/images/eventos.jpg',    
+    BgVideos: '/assets/images/videos.jpg',    
 }
 export const staticData = {
     // HEADER ========================
@@ -93,8 +108,10 @@ export const staticData = {
 
     // FOOTER 
     txt_content_footer: 'La UPEA es una universidad inclusiva, que brinda oportunidades a todos los estudiantes, independientemente de su origen social o económico',
-    // Otros datos
 
     // IMAGENES STATICAS
     dataImagesStatic,
+
+    // VER MAS BTN
+    dataVerMas,
   };
