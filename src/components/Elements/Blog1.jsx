@@ -1,8 +1,9 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { getConvocatorias, getCursos, getInstitucion, getStaticDataIndex } from '../../api/institucionAPI';
+import { getConvocatorias, getCursos, getInstitucion, getStaticDataIndex, getStaticDataKey } from '../../api/institucionAPI';
 import { useQuery } from '@tanstack/react-query';
 import { TIPOS } from '../../types/types';
+import CryptoJS from 'crypto-js';
 
 const Blog1 = ({ tipo }) => {
     
@@ -28,6 +29,12 @@ const Blog1 = ({ tipo }) => {
     const { isLoading: loading_cursos, data: cursos } = useQuery({
         queryKey: ['cursos'],
         queryFn: getCursos,
+    });
+
+    /* OBTENCION DE INFORMACION DEL STORE STATICO */
+    const { isLoading: loading_static_key, data: DataKey } = useQuery({
+        queryKey: ['staticDataKey'],
+        queryFn: getStaticDataKey,
     });
 
     var bgimg1 = require('./../../images/background/cross-line2.png');       
@@ -56,7 +63,7 @@ const Blog1 = ({ tipo }) => {
     const sinRegistros = (<div style={{textAlign: 'center', fontSize:'3em', padding: '20px', background: 'var(--color-primario)',color: '#fff'}}>Sin Registros</div>)
 
     /* COMPONENTE PARA CONVOCATORIAS - COMUNICADOS - AVISOS */
-    if(!loading_institucion && !loading_static_data && !loading_convocatorias && tipo===TIPOS.CONVOCATORIAS){
+    if(!loading_institucion && !loading_static_data && !loading_convocatorias && !loading_static_key && tipo===TIPOS.CONVOCATORIAS){
         
         /* DATOS ESTATICOS */
         const {
@@ -86,7 +93,13 @@ const Blog1 = ({ tipo }) => {
             lastAviso,            
         ].filter((item) => item !== undefined)
 
-        console.log("convocatoria",ConvocatoriasAndComunicadosAndAvisos);
+        const {CLAVE_ENCRYPTACION} = DataKey
+
+        // Función para cifrar texto
+        const encryptText = (text) => {
+            const encryptedText = CryptoJS.AES.encrypt(JSON.stringify({text}), CLAVE_ENCRYPTACION).toString();
+            return encryptedText;
+        };          
 
         /* COMPONENTE PARA CONVOCATORIAS, COMUNICADOS Y AVISOS */
         return (
@@ -109,7 +122,7 @@ const Blog1 = ({ tipo }) => {
                                 <div className="col-lg-4 col-md-6 col-sm-12" key={index}>
                                 <div className="blog-post blog-grid date-style-2">
                                         <div className="sx-post-media sx-img-effect img-reflection">
-                                            <NavLink to={`/detalle?id=${item.idconvocatorias}&tipo=${item.tipo_conv_comun.tipo_conv_comun_titulo}`}><img src={`${process.env.REACT_APP_ROOT_API}/Convocatorias/${item.con_foto_portada}`} alt="" style={{height: '400px'}}/></NavLink>
+                                            <NavLink to={`/detalle?id=${encryptText(item.idconvocatorias.toString())}&tipo=${item.tipo_conv_comun.tipo_conv_comun_titulo}`}><img src={`${process.env.REACT_APP_ROOT_API}/Convocatorias/${item.con_foto_portada}`} alt="" style={{height: '400px'}}/></NavLink>
                                         </div>
                                         <div className="sx-post-info p-t30">
                                             <div className="sx-post-meta ">

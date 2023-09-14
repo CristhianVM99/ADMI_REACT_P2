@@ -32,6 +32,7 @@ const ContactUs1 = () =>{
             institucion_nombre,
             portada,
             institucion_organigrama,
+            institucion_logo
         } = institucion
 
         const indiceAleatorio = Math.floor(Math.random() * portada.length);
@@ -76,7 +77,10 @@ const ContactUs1 = () =>{
                                             </form>
                                         </div>
                                     </div>
-                                </div>
+                                    <div className='col-lg-6 col-md-12 col-sm-12 container_animation_logo'>
+                                        <img src={`${process.env.REACT_APP_ROOT_API}/InstitucionUpea/${institucion_logo}`} alt="" className="rotate_animation_logo"/>    
+                                    </div>                                    
+                                </div>                                
                             </div>
                         </div>
                     </div>

@@ -42,6 +42,7 @@ import SimilarProjects from "../Elements/SimilarProjects";
 import Achievements1 from "../Elements/Achievements1";
 import { getInstitucion } from "../../api/institucionAPI";
 import { useQuery } from "@tanstack/react-query";
+import CryptoJS from 'crypto-js';
 
 const Home1 = () => {
 
@@ -78,11 +79,9 @@ const Home1 = () => {
     }    
   }, [loading_institucion, institucion]);  
 
-  const index1 = false
-
+  const index1 = true
   const index2 = false
-  const index3 = true
-  //conflictos la 4
+  const index3 = false
   const index4 = false
 
 
@@ -92,6 +91,32 @@ const Home1 = () => {
   const index6 = false
 
   if(!loading_institucion){    
+
+    // Función para cifrar texto
+const encryptText = (text, secretKey) => {
+  const encryptedText = CryptoJS.AES.encrypt(text, secretKey).toString();
+  return encryptedText;
+};
+
+// Función para descifrar texto
+const decryptText = (encryptedText, secretKey) => {
+  const decryptedBytes = CryptoJS.AES.decrypt(encryptedText, secretKey);
+  const decryptedText = decryptedBytes.toString(CryptoJS.enc.Utf8);
+  return decryptedText;
+};
+
+// Ejemplo de uso
+const secretKey = 'mi-clave-secreta';
+
+const textoOriginal = 'Este es mi texto secreto';
+const textoCifrado = encryptText(textoOriginal, secretKey);
+
+console.log('Texto cifrado:', textoCifrado);
+
+const textoDescifrado = decryptText(textoCifrado, secretKey);
+
+console.log('Texto descifrado:', textoDescifrado);
+
 
     return (
       <>
@@ -111,7 +136,9 @@ const Home1 = () => {
   
             {/* COMPONENTE  => CONVOCATORIAS */}
             <Blog1 tipo={TIPOS.CONVOCATORIAS} />                      
-                                                         
+
+            {/* COMPONENTE => PLAN DE ESTUDIOS  */}
+            <ContactUs1 />
   
             {/* COMPONENTE => CURSOS */}
             <Blog1 tipo={TIPOS.CURSOS} />                                                                             
@@ -132,13 +159,16 @@ const Home1 = () => {
               <Testimonials2 separatoralignment="separator-center" />
   
               {/* COMPONENTE  => CONVOCATORIAS */}
-              <WhatWeDo1 tipo={TIPOS.CONVOCATORIAS}/>                 
+              <WhatWeDo1 tipo={TIPOS.CONVOCATORIAS}/>                                                             
 
               {/* COMPONENTE => CURSOS */}
-              <WhatWeDo1 tipo={TIPOS.CURSOS}/>  
+              <WhatWeDo1 tipo={TIPOS.CURSOS}/>      
+
+              {/* COMPONENTE => PLAN DE ESTUDIOS  */}
+              <ContactUs1 />
 
               {/* COMPONENTE => CATEGORIAS */}
-              <WhatWeDo2 />                                                       
+              <WhatWeDo2 />     
   
               {/* COMPONENTE => LINK-EXTERNOS */}
               <ClientsLogo1 />
@@ -150,25 +180,24 @@ const Home1 = () => {
         {index3 && <div>
           <Header3 />
           <div className="page-content">
+              
               <Slider3 />
 
               {/* COMPONENTE => AUTORIDADES */}
               <Team2 />
 
+              {/* COMPONENTE => CATEGORIAS  */}
+              <WhatWeDo3 /> 
+
+              {/* COMPONENTE => PLAN DE ESTUDIOS  */}
               <ContactUs1 />
   
               {/* COMPONENTE  => CONVOCATORIAS */}          
               <Projects3 tipo={TIPOS.CONVOCATORIAS}/>                              
   
               {/* COMPONENTE => CURSOS */}
-              <Projects3 tipo={TIPOS.CURSOS}/>
-
-              <WhatWeDo3 />
-              <Services3 />
-                            
-              <ClientsLogo2 bgcolor="bg-white" />   
-              <About1 />                
-  
+              <Projects3 tipo={TIPOS.CURSOS}/>                
+                        
               {/* COMPONENTE => LINK-EXTERNOS */}
               <ClientsLogo1 />
           </div>
@@ -180,18 +209,25 @@ const Home1 = () => {
           <Header />
             <div className="page-content">
             {/* SLIDER START */}
-            <Slider4 />
-            {/* COMPONENTE  => CONVOCATORIAS */}
-            <Blog1 tipo={TIPOS.CONVOCATORIAS} />            
-  
+            <Slider4 />                         
+
             {/* COMPONENTE => AUTORIDADES */}
-            <Team1 />
+            <Team1 />          
+
+            {/* COMPONENTE => PLAN DE ESTUDIOS  */}
+            <ContactUs1 />
+
+            {/* COMPONENTE => LINK EXTERNOS */}
+            <ClientsLogo2  />                        
+                  
+            {/* COMPONENTE  => CONVOCATORIAS */}      
+            <About1 tipo={TIPOS.CONVOCATORIAS}/>            
+
+            {/* COMPONENTE => CATEGORIAS  */}
+            <Services3 /> 
                   
             {/* COMPONENTE => CURSOS */}
-            <Blog1 tipo={TIPOS.CURSOS} />                    
-                  
-            {/* COMPONENTE => LINK-EXTERNOS */}
-            <ClientsLogo1 />
+            <About1 tipo={TIPOS.CURSOS}/>                                              
             </div>
           <Footer />
           </div>

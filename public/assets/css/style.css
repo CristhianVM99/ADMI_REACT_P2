@@ -15702,3 +15702,29 @@ form.woocommerce-ordering:after {
 	
   display: none !important;
 }
+
+/* REACT IMAGEN LOGO - ANIMACION DE ROTAR*/
+.container_animation_logo {
+	perspective: 1000px; /* Establece la perspectiva del contenedor 3D */
+	width: 100%;
+	height: 100%;
+  }
+  
+  .rotate_animation_logo {
+	width: 100%; /* Ajusta el tamaño de la imagen según tus necesidades */
+	background-image: url('tu-imagen.png'); /* Reemplaza 'tu-imagen.png' con la URL de tu imagen */
+	background-size: cover;
+	transform-style: preserve-3d; /* Indica que los hijos deben conservar la perspectiva 3D */
+	animation: spinX 6s linear infinite; /* Controla la velocidad y duración de la animación */
+  }
+  
+  @keyframes spinX {
+	0% {
+	  transform: rotateY(0deg); /* Inicialmente no hay rotación */
+	}
+	100% {
+	  transform: rotateY(360deg); /* Gira 360 grados en el eje X */
+	}
+  }
+
+  

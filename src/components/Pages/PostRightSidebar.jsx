@@ -22,7 +22,7 @@ const PostRightSidebar = () =>{
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const category = searchParams.get('tipo').toUpperCase();
-    const id = searchParams.get('id');
+    const id = searchParams.get('id');    
 
     /* OBTENCION DE INFORMACION DEL STORE API INSTITUCION*/
     const { isLoading: loading_institucion, data: institucion } = useQuery({
@@ -84,8 +84,8 @@ const PostRightSidebar = () =>{
         queryFn: getStaticDataCategoryDetail,
     });
 
-    /* OBTENCION DE INFORMACION DEL STORE STATICO CATEGORY */
-    const { isLoading: loading_static_data_key, data: staticDataKey } = useQuery({
+    /* OBTENCION DE INFORMACION DEL STORE STATICO */
+    const { isLoading: loading_static_key, data: DataKey } = useQuery({
         queryKey: ['staticDataKey'],
         queryFn: getStaticDataKey,
     });      
@@ -196,7 +196,6 @@ const PostRightSidebar = () =>{
         !loading_institucion &&
         !loading_static_data &&
         !loading_servicios &&
-        !loading_static_data_key &&
         category === TIPOS.SERVICIOS
         ) 
         {        
@@ -273,7 +272,6 @@ const PostRightSidebar = () =>{
         !loading_institucion &&
         !loading_static_data &&
         !loading_ofertas &&
-        !loading_static_data_key &&
         category === TIPOS.OFERTAS_ACADEMICAS
         ) 
         {            
@@ -356,7 +354,6 @@ const PostRightSidebar = () =>{
         !loading_institucion &&
         !loading_static_data &&
         !loading_publicaciones &&
-        !loading_static_data_key &&
         category === TIPOS.PUBLICACIONES
         ) 
         {
@@ -435,7 +432,6 @@ const PostRightSidebar = () =>{
         !loading_institucion &&
         !loading_static_data &&
         !loading_gacetas &&
-        !loading_static_data_key &&
         category === TIPOS.GACETAS
         ) 
         {
@@ -513,7 +509,6 @@ const PostRightSidebar = () =>{
         !loading_institucion &&
         !loading_static_data &&
         !loading_eventos &&
-        !loading_static_data_key &&
         category === TIPOS.EVENTOS
         ) 
         {
@@ -592,7 +587,6 @@ const PostRightSidebar = () =>{
         !loading_institucion &&
         !loading_static_data &&
         !loading_videos &&
-        !loading_static_data_key &&
         category === TIPOS.VIDEOS
         ) 
         {
@@ -677,7 +671,7 @@ const PostRightSidebar = () =>{
         (!loading_institucion &&
         !loading_static_data &&
         !loading_convocatorias &&
-        !loading_static_data_key
+        !loading_static_key
         ) &&
         (category === TIPOS.CONVOCATORIAS ||
         category === TIPOS.COMUNICADOS ||
@@ -699,7 +693,20 @@ const PostRightSidebar = () =>{
             portada
         } = institucion
 
-        const item = convocatorias.find((e) => e.idconvocatorias === parseInt(id,10)) 
+        const {CLAVE_ENCRYPTACION} = DataKey
+
+        // Función para descifrar texto
+        const decryptText = (encryptedText) => {
+            const decryptedBytes = CryptoJS.AES.decrypt(encryptedText, CLAVE_ENCRYPTACION).toString(CryptoJS.enc.Utf8);
+            return decryptedBytes;
+        };
+
+        const ID = decryptText(id)
+        
+        const info3 = JSON.parse(ID);
+        console.log("ID", info3.text )
+
+        const item = convocatorias.find((e) => e.idconvocatorias === parseInt(info3.text,10)) 
         
         const indiceAleatorio = Math.floor(Math.random() * portada.length);
         const imagenSeleccionada = portada[indiceAleatorio].portada_imagen;
@@ -717,7 +724,7 @@ const PostRightSidebar = () =>{
                                 <div className="col-lg-8 col-md-12 col-sm-12">
                                     <div className="blog-single-space max-w900 ml-auto mr-auto">
                                         {/* BLOG START */}
-                                        <div className="blog-post blog-detail text-black">
+                                        {item ? <div className="blog-post blog-detail text-black">
                                             <div className="sx-post-media">
                                                 <div className="portfolio-item">
                                                     <img style={{width: '100%'}} className="img-responsive" src={`${process.env.REACT_APP_ROOT_API}/Convocatorias/${item.con_foto_portada}`} alt="" />
@@ -736,7 +743,7 @@ const PostRightSidebar = () =>{
                                             <div className="sx-post-text">
                                                 {/* <div dangerouslySetInnerHTML={{ __html: item.video_breve_descripcion }}></div>                                                                                                 */}
                                             </div>                                            
-                                        </div>                                                                              
+                                        </div>: null}                                                                             
                                     </div>
                                 </div>
                                 {/* SIDE BAR START */}
@@ -759,8 +766,7 @@ const PostRightSidebar = () =>{
       if (
         (!loading_institucion &&
         !loading_static_data &&
-        !loading_cursos &&
-        !loading_static_data_key
+        !loading_cursos 
         ) &&
         (category === TIPOS.CURSOS ||
         category === TIPOS.SEMINARIOS 

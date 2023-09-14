@@ -28,6 +28,8 @@ const ClientsLogo1 = () =>{
 
         const links_filter = links.filter((e)=>e.ei_tipo===TIPOS.KARDEX)
 
+        const sinRegistros = (<div style={{textAlign: 'center', fontSize:'3em', padding: '20px', background: 'var(--color-primario)',color: '#fff'}}>Sin Registros</div>)
+
         return (
             <>
                 <div className="section-full mobile-page-padding bg-gray  p-t80 p-b10 bg-repeat" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
@@ -56,7 +58,7 @@ const ClientsLogo1 = () =>{
                                     ))}
                                 </div>
                             </div>
-                        </div>: <div style={{textAlign: 'center', fontSize:'3em', padding: '20px', background: 'var(--color-primario)',color:'#fff'}}>Sin Registros</div> }
+                        </div>: sinRegistros }
                     </div>
                     <div className="hilite-title text-left p-l50 text-uppercase">
                         <strong>Enlaces</strong>

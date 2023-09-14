@@ -3,50 +3,21 @@ import { NavLink } from 'react-router-dom';
 import OwlCarousel from 'react-owl-carousel';
 import 'owl.carousel/dist/assets/owl.carousel.css';
 import 'owl.carousel/dist/assets/owl.theme.default.css';
-
-const services = [
-    {
-        count: '01',
-        title: 'Plans and Projects',
-        flaticon: 'flaticon-sketch',
-        image: require('./../../images/services/service-projects/1.jpg'),
-    },
-    {
-        count: '02',
-        title: 'Interior',
-        flaticon: 'flaticon-stairs',
-        image: require('./../../images/services/service-projects/2.jpg'),
-    },
-    {
-        count: '03',
-        title: 'Exterior',
-        flaticon: 'flaticon-window',
-        image: require('./../../images/services/service-projects/3.jpg'),
-    },
-    {
-        count: '04',
-        title: 'Architecture',
-        flaticon: 'flaticon-skyline',
-        image: require('./../../images/services/service-projects/4.jpg'),
-    },
-    {
-        count: '05',
-        title: 'Furniture',
-        flaticon: 'flaticon-bed',
-        image: require('./../../images/services/service-projects/5.jpg'),
-    },
-    {
-        count: '06',
-        title: 'Decoration',
-        flaticon: 'flaticon-door',
-        image: require('./../../images/services/service-projects/7.jpg'),
-    }
-]
+import { TIPOS } from '../../types/types';
+import { getStaticImages } from '../../api/institucionAPI';
+import { useQuery } from '@tanstack/react-query';
 
 var bgimg1 = require('./../../images/background/cross-line2.png');
 
-class Services3 extends React.Component {
-    render() {
+const Services3 = () =>{
+
+    /* OBTENCION DE INFORMACION DEL STORE IMAGES */
+    const { isLoading: loading_images, data: images } = useQuery({
+        queryKey: ['getStaticImages'],
+        queryFn: getStaticImages,
+    });
+
+    if(!loading_images){
         const options = {
             loop:true,
             autoplay:false,
@@ -73,6 +44,98 @@ class Services3 extends React.Component {
                 }	
             }
         };
+
+        const services = [
+            {
+                count: '01',
+                title: 'Convocatorias',
+                flaticon: 'flaticon-sketch',
+                image: images.BgConvocatorias,
+                description: 'Convocatorias de la Carrera',
+                link: `/recursos?tipo=${TIPOS.CONVOCATORIAS}`
+            },
+            {
+                count: '02',
+                title: 'Comunicados',
+                flaticon: 'flaticon-stairs',
+                image: images.BgComunicados,
+                description: 'Comunicados de la Carrera',
+                link: `/recursos?tipo=${TIPOS.COMUNICADOS}`
+            },
+            {
+                count: '03',
+                title: 'Avisos',
+                flaticon: 'flaticon-window',
+                image: images.BgAvisos,
+                description: 'Avisos de la Carrera',
+                link: `/recursos?tipo=${TIPOS.AVISOS}`
+            },
+            {
+                count: '04',
+                title: 'Cursos',
+                flaticon: 'flaticon-sketch',
+                image: images.BgCursos,
+                description: 'Cursos de la Carrera',
+                link: `/recursos?tipo=${TIPOS.CURSOS}`
+            },
+            {
+                count: '05',
+                title: 'Seminarios',
+                flaticon: 'flaticon-stairs',
+                image: images.BgSeminarios,
+                description: 'Seminarios de la Carrera',
+                link: `/recursos?tipo=${TIPOS.SEMINARIOS}`
+            },
+            {
+                count: '06',
+                title: 'Servicios',
+                flaticon: 'flaticon-window',
+                image: images.BgServicios,
+                description: 'Servicios de la Carrera',
+                link: `/recursos?tipo=${TIPOS.SERVICIOS}`
+            },
+            {
+                count: '07',
+                title: 'Ofertas Academicas',
+                flaticon: 'flaticon-sketch',
+                image: images.BgOfertasAcademicas,
+                description: 'Ofertas Academicas de la Carrera',
+                link: `/recursos?tipo=${TIPOS.OFERTAS_ACADEMICAS}`
+            },
+            {
+                count: '08',
+                title: 'Publicaciones',
+                flaticon: 'flaticon-stairs',
+                image: images.BgPublicaciones,
+                description: 'Publicaciones de la Carrera',
+                link: `/recursos?tipo=${TIPOS.PUBLICACIONES}`
+            },
+            {
+                count: '09',
+                title: 'Gacetas',
+                flaticon: 'flaticon-window',
+                image: images.BgGacetas,
+                description: 'Gacetas de la Carrera',
+                link: `/recursos?tipo=${TIPOS.GACETAS}`
+            },
+            {
+                count: '10',
+                title: 'Eventos',
+                flaticon: 'flaticon-sketch',
+                image: images.BgEventos,
+                description: 'Eventos de la Carrera',
+                link: `/recursos?tipo=${TIPOS.EVENTOS}`
+            },
+            {
+                count: '11',
+                title: 'Videos',
+                flaticon: 'flaticon-stairs',
+                image: images.BgVideos,
+                description: 'Videos de la Carrera',
+                link: `/recursos?tipo=${TIPOS.VIDEOS}`
+            },            
+        ]
+
         return (
             <>
                 <div className="section-full mobile-page-padding p-t80 bg-white bg-change-section">
@@ -81,7 +144,7 @@ class Services3 extends React.Component {
                             <div className="section-head">
                                 <div className="sx-separator-outer separator-center">
                                     <div className="sx-separator bg-white bg-moving bg-repeat-x" style={{ backgroundImage: 'url(' + bgimg1 + ')' }}>
-                                        <h3 className="sep-line-one">Services</h3>
+                                        <h3 className="sep-line-one">Categorias</h3>
                                     </div>
                                 </div>
                             </div>
@@ -89,9 +152,10 @@ class Services3 extends React.Component {
                         </div>
                         <OwlCarousel className="owl-carousel service-slider-two owl-btn-vertical-center" {...options}>
                         {services.map((item, index) => (
-                            <div className="item" key={index}>
+                            <NavLink to={item.link}>
+                                <div className="item" key={index}>
                             <div className="bgcall-block d-flex flex-wrap justify-content-center align-content-end bg-cover overlay-wraper" style={{ backgroundImage: 'url(' + item.image + ')' }}>
-                                    <div className="overlay-main bg-black opacity-05" />
+                                <div className="overlay-main bg-black opacity-05" />
                                     <div className="bg-content-mid-outer">
                                         <div className="bg-content-mid">
                                             <div className="sx-icon-box-wraper center text-white">
@@ -99,7 +163,7 @@ class Services3 extends React.Component {
                                                     <span className="icon-cell"><i className={item.flaticon} /></span>
                                                 </div>
                                                 <div className="icon-content">
-                                                    <h4 className="sx-tilte"> <NavLink to={"/services-detail"}  className="sx-text-white"> {item.title}</NavLink></h4>
+                                                    <h4 className="sx-tilte"> <NavLink to={item.link}  className="sx-text-white"> {item.title}</NavLink></h4>
                                                 </div>
                                             </div>
                                             <span className="bgcall-block-number">{item.count}</span>
@@ -108,6 +172,7 @@ class Services3 extends React.Component {
                                     </div>
                                 </div>
                             </div>
+                            </NavLink>
                         ))}
                     </OwlCarousel>
                     </div>
